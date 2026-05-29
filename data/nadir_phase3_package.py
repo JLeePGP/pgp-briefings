@@ -144,8 +144,7 @@ def run_pipeline():
         </header>
 
         <section class="bg-slate-950 border border-slate-800 rounded-2xl p-8 mb-12 shadow-2xl text-center">
-            <h2 class="text-sm font-semibold tracking-wider text-slate-400 uppercase mb-4">Personalized 90-Second Data Briefing</h2>
-            <div class="aspect-video w-full bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-center relative overflow-hidden group">
+                <h2 class="text-xs font-mono tracking-wider text-brand-accent uppercase mb-2">Operational Analysis</h2>            <div class="aspect-video w-full bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-center relative overflow-hidden group">
                 <div class="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 to-transparent"></div>
                 <p class="text-slate-500 text-sm z-10">[ Insert Personalized Loom Video Embed Code Here ]</p>
             </div>
@@ -169,11 +168,20 @@ def run_pipeline():
                 <span class="text-2xl font-bold text-slate-200 mt-1 block">${aum_26}M</span>
             </div>
         </section>
-
-        <footer class="text-center pt-8 border-t border-slate-800">
-            <p class="text-slate-400 mb-6">Want to review the organic data infrastructure built for these metrics?</p>
-            <a href="mailto:contact@precisiongrowthpartners.io" class="inline-block bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-8 py-3 rounded-lg transition-colors shadow-lg shadow-emerald-500/20">
-                Review Asset Acquisition Engine
+        
+        <footer class="text-center pt-12 border-t border-slate-800/60 max-w-2xl mx-auto">
+            <h3 class="text-xl font-semibold text-brand-text mb-2">
+                Interested in exploring how to capitalize on these specific opportunities?
+            </h3>
+            
+            <p class="text-slate-400 mb-8 text-sm">
+                Let's do a brief alignment check to cross-reference these metrics with your actual growth targets.
+            </p>
+            
+            <a href="https://calendly.com/precisiongrowthpartners/nadir-discovery-call" 
+            target="_blank"
+            class="inline-block bg-brand-accent text-slate-950 font-bold text-lg px-10 py-4 rounded-lg transition-all hover:opacity-90 shadow-lg">
+                Book Discovery Call
             </a>
         </footer>
     </div>
