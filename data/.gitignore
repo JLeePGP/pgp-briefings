@@ -3,7 +3,7 @@
 *.CSV
 
 # Block the hidden local Netlify cache folder inside data
-data/.netlify/
+.netlify/
 
 # Block global pipeline data and keys in the root or data folders
 prospects_top100.csv
