@@ -180,9 +180,9 @@ def run_pipeline():
 </body>
 </html>
 """
-    # --- STEP 4: DIRECT ROOT STORAGE LOGIC ---
-    # We now write folders straight to the root so they sync cleanly with public Git tracking
-    target_dir = url_slug
+# --- STEP 4: DIRECT MASTER ROOT STORAGE LOGIC ---
+    # We use "../" to force the folder out of 'data' and straight into the repository root
+    target_dir = os.path.join("..", url_slug)
     
     if os.path.exists(target_dir):
         import shutil
@@ -191,7 +191,7 @@ def run_pipeline():
     
     with open(os.path.join(target_dir, "index.html"), "w", encoding="utf-8") as f:
         f.write(html_content)
-    print(f"  [✔] Custom HTML architecture compiled safely into root directory: {target_dir}")
+    print(f"  [✔] Custom HTML architecture compiled safely into repository root: {url_slug}/")
 
     # Allow local file allocation states to catch up
     time.sleep(1)
