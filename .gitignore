@@ -1,14 +1,17 @@
-# Ignore local data pipelines
+# Block only the raw SEC CSV databases inside the data folder
+data/*.csv
+data/*.CSV
+
+# Block the hidden local Netlify cache folder inside data
+data/.netlify/
+
+# Block global pipeline data and keys in the root or data folders
 prospects_top100.csv
 nadir_market_vault.json
-
-# Ignore generated AI briefing prompts
+pgp_config.json
 claude_briefing_*.txt
+.env
 
-# Ignore local staging builds
+# Block local website build directories
 netlify_build/
 nadir_vault/
-
-# Ignore API configuration keys and environment variables
-.env
-pgp_config.json
