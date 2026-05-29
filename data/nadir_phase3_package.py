@@ -51,29 +51,97 @@ def run_pipeline():
     if not config:
         return
 
-    # Load prioritized candidates
+# Load prioritized candidates
     df = pd.read_csv(INPUT_CSV)
     
-    # Render the top 10 options on the active stack
-    print("\n  Top 10 High-Propensity Agency Targets available for Recon:")
-    for idx, row in df.head(10).iterrows():
-        print(f"    [{idx + 1}] {row['firm_name']} | Website: {row['website_url']} | PI: {row['propensity_index']}")
+    current_row = 0
+    page_size = 10
+    total_firms = len(df)
+    target_firm = {}
+    is_manual_override = False
+
+    print("\n==================================================")
+    print("  PROJECT NADIR // OPERATIONAL COMMAND CONSOLE   ")
+    print("==================================================")
+    print("  • Type a list number [1-100] to select a pipeline firm.")
+    print("  • Type '#' followed by the CRD (e.g., #742) for wildcards.")
+    print("  • Press ENTER with no input to view the next page.")
+    print("==================================================")
+
+    # --- MAIN INTERACTIVE SELECTION LOOP ---
+    while True:
+        end_row = min(current_row + page_size, total_firms)
+        print(f"\n--- PRIORITIZED PIPELINE (Firms {current_row + 1} to {end_row} of {total_firms}) ---")
         
-    print("\n" + "─"*50)
-    choice = input("  Select a firm number to process (1-10): ")
-    try:
-        target_firm = df.iloc[int(choice) - 1]
-    except Exception:
-        print(" [!] Invalid or empty entry detected. Defaulting to target #1.")
-        target_firm = df.iloc[0]
+        for i in range(current_row, end_row):
+            row = df.iloc[i]
+            print(f"  [{i + 1}] Score: {row.get('propensity_index', 'N/A')} | {row['firm_name'][:50]}")
         
+        print("──────────────────────────────────────────────────")
+        user_selection = input("  ➔ Select [Number], enter [#CRD], or press [ENTER] for next page: ").strip()
+
+        # Case 1: Paginate forward
+        if not user_selection:
+            current_row += page_size
+            if current_row >= total_firms:
+                print("\n  [i] Reached the end of the pipeline. Looping back to the top.")
+                current_row = 0
+            continue
+
+        # Case 2: Direct Vault Override (Checks for the # symbol to dodge numerical index collisions)
+        if user_selection.startswith("#"):
+            target_crd = user_selection.replace("#", "").strip()
+            print(f"\n[!] Vault Override Detected. Querying master database for CRD: {target_crd}...")
+            
+            try:
+                with open(INPUT_VAULT, "r") as f:
+                    vault_data = json.load(f)
+                
+                if target_crd in vault_data:
+                    adv_history = vault_data[target_crd]
+                    latest_year = sorted(adv_history.keys())[-1]
+                    latest_data = adv_history[latest_year]
+                    
+                    # Programmatically construct target_firm schema to match CSV rows for down-stream code
+                    target_firm = {
+                        "firm_name": latest_data.get("firm_name", "Unknown Firm"),
+                        "crd_number": target_crd,
+                        "website_url": latest_data.get("website_url", ""),
+                        "advisor_count_2026": latest_data.get("advisor_employees_raw", "0"),
+                        "aum_2024_m": float(adv_history.get("2024", {}).get("total_aum_raw", 0)) / 1_000_000,
+                        "aum_2025_m": float(adv_history.get("2025", {}).get("total_aum_raw", 0)) / 1_000_000,
+                        "aum_2026_m": float(adv_history.get("2026", {}).get("total_aum_raw", 0)) / 1_000_000
+                    }
+                    is_manual_override = True
+                    break
+                else:
+                    print(f"  [!] Error: CRD '{target_crd}' could not be located inside '{INPUT_VAULT}'.")
+                    continue
+            except Exception as e:
+                print(f"  [!] Vault index search error: {e}")
+                continue
+
+        # Case 3: Standard Pipeline Index Selection
+        if user_selection.isdigit():
+            val = int(user_selection)
+            if 1 <= val <= total_firms:
+                target_firm = df.iloc[val - 1]
+                break
+            else:
+                print(f"  [!] Selection out of bounds. Enter a pipeline number between 1 and {total_firms}.")
+                continue
+        else:
+            print("  [!] Invalid entry. Use a pipeline number or prefix wildcards with '#'.")
+            continue
+
+    # --- VARIABLE UNIFICATION LAYER ---
     firm_name_raw = str(target_firm["firm_name"])
     print(f"\n[➔] Actively processing telemetry array for: {firm_name_raw}...")
     
     url_slug = clean_slug(firm_name_raw)
     output_prompt_file = f"claude_briefing_{url_slug}.txt"
     
-# Ensure lowercase evaluation and strip out accidental double-prefixes
+    # Ensure lowercase evaluation and strip out accidental double-prefixes
     raw_url = str(target_firm.get("website_url", "")).strip().lower()
     raw_url = raw_url.replace("https://", "").replace("http://", "")
     raw_url = f"https://{raw_url}"
