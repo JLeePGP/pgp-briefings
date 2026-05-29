@@ -1,0 +1,14 @@
+# Ignore local data pipelines
+prospects_top100.csv
+nadir_market_vault.json
+
+# Ignore generated AI briefing prompts
+claude_briefing_*.txt
+
+# Ignore local staging builds
+netlify_build/
+nadir_vault/
+
+# Ignore API configuration keys and environment variables
+.env
+pgp_config.json

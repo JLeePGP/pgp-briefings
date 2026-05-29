@@ -1,0 +1,21 @@
+You are an elite enterprise growth consultant and data journalist specializing in the independent wealth management space. 
+
+Attached is a raw data dossier containing the complete 3-year operational histories (2024 to 2026) for our top 100 target prospects. These firms fall into our "Unrealized Capacity" archetype: they have expanded their advisor headcount or team size over the last 3 years, but their AUM has plateaued or drifted downward. They have capacity, but their organic marketing checked "No" across the board on their Form ADV, meaning they have no modern distribution engine.
+
+Please analyze the attached dossier. To kick off our workflow, analyze the TOP 5 highest-priority firms in the list. For each firm, write a razor-sharp, brutal, and empirical "Corporate Biography" detailing the exact human and financial story occurring inside the business.
+
+Structure each profile exactly like this:
+
+FIRM NAME: [Name] (CRD: #XXXXXX)
+TIER CLASSIFICATION: [Propensity Index & Score]
+
+1. THE 3-YEAR ARC (WHAT ACTUALLY HAPPENED): 
+Detail the exact trajectory from 2024 to 2026. Explicitly contrast their human capital choices against their asset performance. Use the exact data points (e.g., "In 2024, they had X employees managing $Y Million. By 2026, they scaled the bench to Z employees, but assets did [stagnate/drop] to $W Million..."). Highlight the specific Year-over-Year shifts (including 2025) to show the momentum or velocity change.
+
+2. THE INTERNAL PRESSURE POINT:
+Diagnose the exact management crisis or strain the partners are dealing with based on this data. (e.g., Are their margins compressed due to over-hiring? Are individual advisors severely under-capacity because the phones aren't ringing? Are they suffering from a "Volume-over-Value Trap" where they are taking on too many tiny accounts just to survive?). Connect their operational data directly to their chronic marketing void.
+
+3. THE EXECUTIVE ICEBREAKER:
+Give me a 1-sentence, high-context observation about their 3-year trajectory that I can use to open a cold conversation. It must sound like it was written by an industry peer, not a salesperson. Absolutely no fluff, no corporate buzzwords, and no generic platitudes. 
+
+Keep your tone clinical, highly direct, and purely focused on the numbers. Do not write generic pitches or outreach scripts. Just give me the raw, investigative intelligence.
