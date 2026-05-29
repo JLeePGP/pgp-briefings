@@ -187,15 +187,13 @@ def run_pipeline():
         <header class="flex flex-col gap-4 border-b border-brand-charcoal/40 pb-8 mb-12">
             <img src="{BRAND_LOGO_URL}" alt="Precision Growth Partners Logo" class="w-1/2 sm:w-2/5 md:w-1/3 max-w-[280px] h-auto object-contain self-start">
             <div>
-                <span class="text-brand-copper font-mono tracking-widest text-xs uppercase font-semibold">Project Nadir // Operational Telemetry Stream</span>
                 <h1 class="text-4xl font-extrabold tracking-tight mt-2 text-brand-text">Unlocking Scale for {firm_name_raw}'s {advisors}-Advisor Bench</h1>
                 <p class="text-xl text-slate-400 mt-4 font-light">Your team expanded while market velocity shifted. Let's align your asset growth directly to your actual capacity.</p>
             </div>
         </header>
 
         <section class="bg-brand-card border border-brand-charcoal/30 rounded-2xl p-8 mb-12 shadow-2xl">
-            <h2 class="text-xs font-mono tracking-wider text-brand-copper uppercase mb-2">Operational Analysis</h2>
-            <h3 class="text-2xl font-bold text-brand-text mb-6">Video Review for {firm_name_raw}</h3>
+            <h3 class="text-2xl font-bold text-brand-copper mb-6">Operational Analysis</h3>
             <div class="aspect-video w-full rounded-lg border border-brand-charcoal/40 overflow-hidden bg-brand-bg relative">
                 <iframe src="https://www.loom.com/embed/{target_loom_id}?hide_owner=true&hide_share=true&hide_title=true" 
                         webkitallowfullscreen mozallowfullscreen allowfullscreen 
