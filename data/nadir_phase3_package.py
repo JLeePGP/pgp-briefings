@@ -185,7 +185,7 @@ def run_pipeline():
     <div class="max-w-5xl mx-auto px-6 py-16">
         
         <header class="flex flex-col gap-4 border-b border-brand-charcoal/40 pb-8 mb-12">
-            <img src="{BRAND_LOGO_URL}" alt="Precision Growth Partners Logo" class="h-10 w-auto object-contain self-start">
+            <img src="{BRAND_LOGO_URL}" alt="Precision Growth Partners Logo" class="w-1/2 sm:w-2/5 md:w-1/3 max-w-[280px] h-auto object-contain self-start">
             <div>
                 <span class="text-brand-copper font-mono tracking-widest text-xs uppercase font-semibold">Project Nadir // Operational Telemetry Stream</span>
                 <h1 class="text-4xl font-extrabold tracking-tight mt-2 text-brand-text">Unlocking Scale for {firm_name_raw}'s {advisors}-Advisor Bench</h1>
