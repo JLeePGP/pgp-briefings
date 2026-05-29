@@ -126,61 +126,113 @@ def run_pipeline():
     aum_25 = target_firm["aum_2025_m"]
     aum_26 = target_firm["aum_2026_m"]
     advisors = target_firm["advisor_count_2026"]
+
+ # --- UNIVERSAL BRAND CONFIGURATION SYSTEM ---
+    BRAND_BG = "#2b2b2b"         # Dark Background
+    BRAND_CARD = "#363636"       # Slightly lighter Charcoal variant for data containers/cards
+    BRAND_CHARCOAL = "#4a4a4a"   # Accent Charcoal
+    BRAND_COPPER = "#bf8660"     # Copper Highlight / Buttons
+    BRAND_TEXT = "#f8fafc"       # Off-white for clean readability
     
+    BRAND_FONT_FAMILY = "Poppins, system-ui, sans-serif"
+    BRAND_LOGO_URL = "https://framerusercontent.com/images/S8VQesQNIT2grrkBle7vzbRnVZc.png?scale-down-to=512&width=8000&height=4500"
+
+    # --- FUTURE-PROOFED GUI LOOM INTERACTION BRIDGE ---
+    # This checks your data row first. When your future chat GUI overwrites a firm's 
+    # data cell with a custom video link, this variable catches it instantly.
+    target_loom_id = str(target_firm.get('loom_id', '')).strip()
+    
+    # Clean up empty or corrupted pandas null values
+    if not target_loom_id or target_loom_id.lower() == 'nan':
+        # Default fallback asset from your global configuration
+        target_loom_id = config.get("GLOBAL_LOOM_ID", "YOUR_DEFAULT_LOOM_ID_HERE")
+
+    # --- COMPILING BRAND ARCHITECTURE ---
     html_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Growth Strategy Telemetry // {firm_name_raw}</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {{
+            theme: {{
+                extend: {{
+                    colors: {{
+                        brand: {{
+                            bg: '{BRAND_BG}',
+                            card: '{BRAND_CARD}',
+                            charcoal: '{BRAND_CHARCOAL}',
+                            copper: '{BRAND_COPPER}',
+                            text: '{BRAND_TEXT}'
+                        }}
+                    }},
+                    fontFamily: {{
+                        brand: ['{BRAND_FONT_FAMILY}']
+                    }}
+                }}
+            }}
+        }}
+    </script>
 </head>
-<body class="bg-slate-900 text-white font-sans antialiased">
+<body class="bg-brand-bg text-brand-text font-brand antialiased">
     <div class="max-w-5xl mx-auto px-6 py-16">
-        <header class="border-b border-slate-800 pb-8 mb-12">
-            <span class="text-emerald-400 font-mono tracking-widest text-xs uppercase font-bold">Project Nadir // Operational Telemetry Stream</span>
-            <h1 class="text-4xl font-extrabold tracking-tight mt-2 text-slate-100">Unlocking Scale for {firm_name_raw}'s {advisors}-Advisor Bench</h1>
-            <p class="text-xl text-slate-400 mt-4 font-light">Your team expanded while market velocity shifted. Let's align your asset growth directly to your actual capacity.</p>
+        
+        <header class="flex flex-col gap-4 border-b border-brand-charcoal/40 pb-8 mb-12">
+            <img src="{BRAND_LOGO_URL}" alt="Precision Growth Partners Logo" class="h-10 w-auto object-contain self-start">
+            <div>
+                <span class="text-brand-copper font-mono tracking-widest text-xs uppercase font-semibold">Project Nadir // Operational Telemetry Stream</span>
+                <h1 class="text-4xl font-extrabold tracking-tight mt-2 text-brand-text">Unlocking Scale for {firm_name_raw}'s {advisors}-Advisor Bench</h1>
+                <p class="text-xl text-slate-400 mt-4 font-light">Your team expanded while market velocity shifted. Let's align your asset growth directly to your actual capacity.</p>
+            </div>
         </header>
 
-        <section class="bg-slate-950 border border-slate-800 rounded-2xl p-8 mb-12 shadow-2xl text-center">
-                <h2 class="text-xs font-mono tracking-wider text-brand-accent uppercase mb-2">Operational Analysis</h2>            <div class="aspect-video w-full bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-center relative overflow-hidden group">
-                <div class="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 to-transparent"></div>
-                <p class="text-slate-500 text-sm z-10">[ Insert Personalized Loom Video Embed Code Here ]</p>
+        <section class="bg-brand-card border border-brand-charcoal/30 rounded-2xl p-8 mb-12 shadow-2xl">
+            <h2 class="text-xs font-mono tracking-wider text-brand-copper uppercase mb-2">Operational Analysis</h2>
+            <h3 class="text-2xl font-bold text-brand-text mb-6">Video Review for {firm_name_raw}</h3>
+            <div class="aspect-video w-full rounded-lg border border-brand-charcoal/40 overflow-hidden bg-brand-bg relative">
+                <iframe src="https://www.loom.com/embed/{target_loom_id}?hide_owner=true&hide_share=true&hide_title=true" 
+                        webkitallowfullscreen mozallowfullscreen allowfullscreen 
+                        class="absolute top-0 left-0 w-full h-full border-0">
+                </iframe>
             </div>
         </section>
 
         <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-            <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-800/80 backdrop-blur-sm">
-                <span class="text-xs text-slate-500 uppercase tracking-wider block font-medium">Active Bench (2026)</span>
-                <span class="text-2xl font-bold text-emerald-400 mt-1 block">{advisors} Advisors</span>
+            <div class="bg-brand-card p-6 rounded-xl border border-brand-charcoal/30">
+                <span class="text-xs text-brand-copper uppercase tracking-wider block font-semibold">Active Bench (2026)</span>
+                <span class="text-2xl font-bold mt-1 block">{advisors} Advisors</span>
             </div>
-            <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-800/80 backdrop-blur-sm">
+            <div class="bg-brand-card p-6 rounded-xl border border-brand-charcoal/30">
                 <span class="text-xs text-slate-400 uppercase tracking-wider block font-medium">2024 AUM Baseline</span>
-                <span class="text-2xl font-bold text-slate-200 mt-1 block">${aum_24}M</span>
+                <span class="text-2xl font-bold mt-1 block">${float(aum_24):,.1f}M</span>
             </div>
-            <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-800/80 backdrop-blur-sm">
-                <span class="text-xs text-emerald-500/80 uppercase tracking-wider block font-medium">2025 AUM Velocity</span>
-                <span class="text-2xl font-bold text-emerald-300 mt-1 block">${aum_25}M</span>
+            <div class="bg-brand-card p-6 rounded-xl border border-brand-charcoal/30">
+                <span class="text-xs text-brand-copper uppercase tracking-wider block font-semibold">2025 AUM Velocity</span>
+                <span class="text-2xl font-bold mt-1 block">${float(aum_25):,.1f}M</span>
             </div>
-            <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-800/80 backdrop-blur-sm">
+            <div class="bg-brand-card p-6 rounded-xl border border-brand-charcoal/30">
                 <span class="text-xs text-slate-400 uppercase tracking-wider block font-medium">2026 Current AUM</span>
-                <span class="text-2xl font-bold text-slate-200 mt-1 block">${aum_26}M</span>
+                <span class="text-2xl font-bold mt-1 block">${float(aum_26):,.1f}M</span>
             </div>
         </section>
         
-        <footer class="text-center pt-12 border-t border-slate-800/60 max-w-2xl mx-auto">
+        <footer class="text-center pt-12 border-t border-brand-charcoal/40 max-w-2xl mx-auto">
             <h3 class="text-xl font-semibold text-brand-text mb-2">
                 Interested in exploring how to capitalize on these specific opportunities?
             </h3>
-            
             <p class="text-slate-400 mb-8 text-sm">
                 Let's do a brief alignment check to cross-reference these metrics with your actual growth targets.
             </p>
-            
-            <a href="https://calendly.com/precisiongrowthpartners/nadir-discovery-call" 
-            target="_blank"
-            class="inline-block bg-brand-accent text-slate-950 font-bold text-lg px-10 py-4 rounded-lg transition-all hover:opacity-90 shadow-lg">
+            <a href="https://calendly.com/precisiongrowth/discovery" 
+               target="_blank"
+               class="inline-block bg-brand-copper text-brand-bg font-bold text-lg px-10 py-4 rounded-lg transition-all hover:brightness-110 shadow-lg shadow-brand-copper/10">
                 Book Discovery Call
             </a>
         </footer>
@@ -188,6 +240,7 @@ def run_pipeline():
 </body>
 </html>
 """
+
 # --- STEP 4: DIRECT MASTER ROOT STORAGE LOGIC ---
     # We use "../" to force the folder out of 'data' and straight into the repository root
     target_dir = os.path.join("..", url_slug)
