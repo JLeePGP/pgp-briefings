@@ -73,9 +73,10 @@ def run_pipeline():
     url_slug = clean_slug(firm_name_raw)
     output_prompt_file = f"claude_briefing_{url_slug}.txt"
     
-    raw_url = str(target_firm["website_url"]).strip()
-    if not raw_url.startswith("http"):
-        raw_url = "https://" + raw_url
+# Ensure lowercase evaluation and strip out accidental double-prefixes
+    raw_url = str(target_firm.get("website_url", "")).strip().lower()
+    raw_url = raw_url.replace("https://", "").replace("http://", "")
+    raw_url = f"https://{raw_url}"
         
     # --- STEP 1: REAL-TIME WEB SCRAPE via PUBLIC JINA AI ---
     print("  Scraping target web presence via Jina AI public engine...")
@@ -103,57 +104,95 @@ def run_pipeline():
     adv_history = vault.get(crd_str, {})
 
     with open(output_prompt_file, "w", encoding="utf-8") as f:
-        f.write("MASTER VIDEO SCRIPT BRIEFING ENGINE\n")
-        f.write("===================================\n\n")
-        f.write(f"NOTE: SECURELY AUTHENTICATING CLAUDE PRO MODULE VIA KEY VERIFICATION: {config.get('CLAUDE_API_KEY', '')[:8]}...\n\n")
-        f.write("ACT AS AN ELITE B2B GROWTH STRATEGIST AND DIRECT-RESPONSE COPYWRITER FOR FINANCIAL RIAs.\n")
-        f.write("Analyze the following internal ADV data and live web footprint for this specific firm:\n\n")
-        f.write(f"FIRM DETAILS:\nName: {firm_name_raw}\nCRD: {crd_str}\nURL: {raw_url}\n\n")
-        f.write("1. HARD INTERNAL ADV HISTORY (2024 - 2026):\n")
-        f.write(json.dumps(adv_history, indent=2))
-        f.write("\n\n2. LIVE WEBSITE FOOTPRINT TEXT (SCRAPED IN REAL TIME):\n")
-        f.write(web_markdown[:15000])
-        f.write("\n\n" + "─"*50 + "\n")
-        f.write("YOUR ASSIGNMENT:\n")
-        f.write("Extract the key trendlines from this data and compile a tight, modular Loom Video Script Framework.\n")
-        f.write("Do not write a generic essay or historical biography. Structure the response strictly into these sections:\n\n")
-        f.write("1. THE HOOK (First 15 Seconds):\n")
-        f.write("   Draft a personalized, attention-grabbing opening referencing their 3-year timeline matrix.\n\n")
-        f.write("2. THE COMPLIMENT:\n")
-        f.write("   Provide a highly specific validation of their active advisor team expansion or recent AUM velocity.\n\n")
-        f.write("3. IDENTIFIED OPPORTUNITIES (Select 1 to 3 items):\n")
-        f.write("   Deliver high-conviction, bulleted observations pointing out clear growth gaps where their current\n")
-        f.write("   asset velocity doesn't cleanly match their total bench capacity or positioning.\n\n")
-        f.write("4. THE OUTRO:\n")
-        f.write("   A smooth, low-pressure transition inviting them to cross-reference these findings on an alignment call.\n\n")
-        f.write("Keep the tone completely objective, authoritative, and direct. Eliminate all corporate fluff.")
+            f.write("FAST-SCAN VIDEO ANALYSIS BRIEFING\n")
+            f.write("==================================\n\n")
+            f.write("ACT AS A SUPPORTIVE GROWTH PARTNER AND OUTBOUND ADVISOR.\n")
+            f.write("Analyze the following internal data and web footprint:\n\n")
+            f.write(f"FIRM DETAILS:\nName: {firm_name_raw}\nCRD: {crd_str}\nURL: {raw_url}\n\n")
+            f.write("1. DATA MATRIX:\n")
+            f.write(json.dumps(adv_history, indent=2))
+            f.write(f"\n\n2. WEBSITE FOOTPRINT:\n{web_markdown[:10000]}\n\n")
+            f.write("─"*50 + "\n")
+            f.write("YOUR ASSIGNMENT:\n")
+            f.write("Provide a ultra-brief, bulleted talking-point dashboard for a short video. ")
+            f.write("Keep it entirely constructive, positive, and focused on growth potential. ")
+            f.write("Strictly format your response into only these two sections, using max 3 bullet points per section:\n\n")
+            f.write("1. THE COMPLIMENT (What they are doing right):\n")
+            f.write("   Highlight a massive win in their operational stability, scale, or clean regulatory track record. No fluff.\n\n")
+            f.write("2. GROW LEVERAGE OPPORTUNITIES (What to mention):\n")
+            f.write("   Identify 1 to 2 clean data-driven opportunities where their existing strengths (like proprietary tools, ")
+            f.write("   AUM velocity, or specialized expertise) could be leveraged to capture higher-value client segments. ")
+            f.write("   Keep these brief, direct, and conversational—avoid sounding critical or auditing their firm.\n\n")
+            f.write("Do not include hooks, intros, outros, or conversational transition commentary. Just the bullets.")
+    import anthropic
 
     print(f"  [✔] High-conviction copywriter prompt generated successfully: '{output_prompt_file}'")
 
+# =========================================================================
+    # NEW STEP: AUTOMATED CLAUDE API INFERENCE
     # =========================================================================
-    # INSERTED INTERACTION STEP: TERMINAL PAUSE & LOOM URL CAPTURE
-    # =========================================================================
-    print(f"\n==================================================")
-    print(f"      CLAUDE PRO PORTAL DOSSIER & GENERATED SCRIPT ")
+    print(f"\n  Connecting to Anthropic API to generate video framework...")
+    
+    # Initialize the client using your secure configuration key
+    api_key = config.get('CLAUDE_API_KEY', '')
+    if not api_key:
+        print("  [!] Error: CLAUDE_API_KEY not found in configuration. Aborting API step.")
+        return
+
+    client = anthropic.Anthropic(api_key=api_key)
+
+    # Read the prompt we just compiled to send to Claude
+    with open(output_prompt_file, "r", encoding="utf-8") as f:
+        prompt_payload = f.read()
+
+    print(f"  [➔] Analyzing footprints and compiling script (using claude-3-5-sonnet)...")
     print(f"==================================================")
+    print(f"            GENERATED VIDEO FRAMEWORK             ")
+    print(f"==================================================")
+
+    # Execute a streaming block so you can see the response typed out live
+    try:
+        with client.messages.stream(
+            model="claude-sonnet-4-6",
+            max_tokens=2000,
+            temperature=0.3,
+            messages=[
+                {"role": "user", "content": prompt_payload}
+            ]
+        ) as stream:
+            generated_script = ""
+            for text in stream.text_stream:
+                print(text, end="", flush=True)
+                generated_script += text
+        print("\n==================================================")
+    
+    except Exception as e:
+        print(f"\n  [!] API Request failed: {e}")
+        print("  Falling back to manual mode. Please check your text prompt file.")
+        print("==================================================")
+
+    # =========================================================================
+    # INTERACTION STEP: TERMINAL PAUSE & LOOM URL CAPTURE
+    # =========================================================================
     print(f"FIRM MODEL: {firm_name_raw} operates with a {target_firm['advisor_count_2026']}-advisor bench.")
     print(f"3-YEAR TRAIL: ${float(target_firm['aum_2024_m']):,.1f}M (2024) ➔ ${float(target_firm['aum_2025_m']):,.1f}M (2025) ➔ ${float(target_firm['aum_2026_m']):,.1f}M (2026)")
-    print(f"\n--- MANUAL STEP: OPEN '{output_prompt_file}' AND RUN IN CLAUDE ---")
-    print(f"Record your video review using the analysis generated.")
-    print(f"==================================================")
+    print(f"\n==================================================")
     print(f"               AWAITING ASSET HANDOFF             ")
     print(f"==================================================")
+    print(f"  Instructions: Review the script generated above by Claude.")
+    print(f"  Record your Loom video, then paste the complete share URL below.")
+    print(f"──────────────────────────────────────────────────")
     
-    # 1. Force the script to stop here and wait for your input
+    # Force the script to stop here and wait for your input
     user_loom_input = input("  ➔ Paste Loom Video URL here (or hit enter to use default): ").strip()
     
-    # 2. Extract the raw ID if a full link was given
+    # Extract the raw ID if a full link was given
     if "loom.com" in user_loom_input:
         raw_part = user_loom_input.split("/")[-1]
         user_loom_id = raw_part.split("?")[0]
     else:
         user_loom_id = user_loom_input
-        
+
     # --- STEP 4: COMPILE DYNAMIC EXTERNAL LANDING PAGE HTML (3-YEAR TIMELINE) ---
     print("  Compiling client-facing Tailwind framework with 3-Year Timeline...")
     aum_24 = target_firm["aum_2024_m"]
