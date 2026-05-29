@@ -196,21 +196,36 @@ def run_pipeline():
     # Allow local file allocation states to catch up
     time.sleep(1)
 
-    # --- STEP 5: AUTOMATED DEPLOYMENT PUSH TO GITHUB/NETLIFY ---
+ # --- STEP 5: AUTOMATED DEPLOYMENT PUSH TO GITHUB/NETLIFY ---
     print("  Syncing incremental directory tree to GitHub repository...")
     try:
-        # Automated pipeline updates your repo. Netlify watches this and live-merges instantly.
-        subprocess.run("git add .", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        subprocess.run(f'git commit -m "Automated telemetry deploy: {url_slug}"', shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        subprocess.run("git push origin main", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        # Cache our current position (inside 'data')
+        script_dir = os.getcwd()
         
-        # Verify Site ID is tracked (verifies configuration layout is accurate)
+        # Physically move the script's focus up to the root folder
+        os.chdir("..")
+        
+        # Execute Git commands cleanly from the true root context
+        subprocess.run("git add .", shell=True, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(f'git commit -m "Automated telemetry deploy: {url_slug}"', shell=True, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run("git push origin main", shell=True, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        
+        # Return back to the 'data' folder so the script finishes cleanly
+        os.chdir(script_dir)
+        
+        # Verify Site ID is tracked
         site_verification = config.get('NETLIFY_SITE_ID', 'unlinked')
         
         print(f"\n[✔] SUCCESS: Custom telemetry array deployed on complete autopilot! (Site Ref: {site_verification[:8]}...)")
         print(f"    Live Secure URL: https://telemetry.precisiongrowthpartners.io/{url_slug}")
+        
+    except subprocess.CalledProcessError as e:
+        print(f"  [!] Git command failed to execute natively: {str(e)}")
+        # Safeguard: ensure we return to our original directory if it fails
+        os.chdir(script_dir)
     except Exception as e:
         print(f"  [!] Git deployment pipeline encountered an exception: {str(e)}")
+        os.chdir(script_dir)
         
     print(f"\n{'='*80}\n")
 
