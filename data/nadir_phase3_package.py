@@ -227,7 +227,7 @@ def run_pipeline():
             </h3>
             <a href="https://calendly.com/precisiongrowthpartners/nadir-discovery-call" 
                target="_blank"
-               class="inline-block bg-brand-copper text-brand-bg font-bold text-lg px-10 py-4 rounded-lg transition-all hover:brightness-110 shadow-lg shadow-brand-copper/10">
+               class="inline-block bg-brand-copper text-brand-text font-bold text-lg px-10 py-4 rounded-lg transition-all hover:brightness-110 shadow-lg shadow-brand-copper/10">
                 Book Discovery Call
             </a>
         </footer>
