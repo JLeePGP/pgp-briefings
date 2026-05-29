@@ -1,6 +1,6 @@
 # Block only the raw SEC CSV databases inside the data folder
-data/*.csv
-data/*.CSV
+*.csv
+*.CSV
 
 # Block the hidden local Netlify cache folder inside data
 data/.netlify/
