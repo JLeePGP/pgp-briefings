@@ -227,7 +227,7 @@ def run_pipeline():
             <h3 class="text-xl font-semibold text-brand-text mb-2">
                 Ready to explore how to capitalize on these specific opportunities?
             </h3>
-            <a href="https://calendly.com/precisiongrowth/discovery" 
+            <a href="https://calendly.com/precisiongrowthpartners/nadir-discovery-call" 
                target="_blank"
                class="inline-block bg-brand-copper text-brand-bg font-bold text-lg px-10 py-4 rounded-lg transition-all hover:brightness-110 shadow-lg shadow-brand-copper/10">
                 Book Discovery Call
