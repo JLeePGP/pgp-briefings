@@ -36,38 +36,46 @@ def clean_slug(name):
     cleaned = re.sub(r'[^a-zA-Z0-9]', '', name).lower()
     return cleaned
 
-def compile_landing_page(target_firm, compliment_html, opportunities_html, loom_id, template_path="landing_template.html"):
+def compile_landing_page(target_firm, loom_id, template_path="landing_template.html"):
     """Reads the external HTML template and injects firm metrics cleanly via replacement tags."""
     if not os.path.exists(template_path):
         print(f" [!] ERROR: Missing '{template_path}'. Cannot build landing page asset.")
         return None
 
+    # Calculate metrics with zero-division safety nets
     try:
-        aum_24 = float(target_firm.get("aum_24_m", 0))
-        aum_25 = float(target_firm.get("aum_25_m", 0))
-        aum_26 = float(target_firm.get("aum_26_m", 0))
+        # Check your dictionary keys here to ensure they match your dataset (e.g., 'aum_24_m' vs 'aum_2024_m')
+        aum_24 = float(target_firm.get("aum_2024_m", 0))
+        aum_25 = float(target_firm.get("aum_2025_m", 0))
+        aum_26 = float(target_firm.get("aum_2026_m", 0))
         
-        adv_24 = int(target_firm.get("advisor_count_2024", 1))
-        adv_25 = int(target_firm.get("advisor_count_2025", 1))
         adv_26 = int(target_firm.get("advisor_count_2026", 1))
         adv_26 = adv_26 if adv_26 > 0 else 1
         
         total_clients = float(target_firm.get("total_clients_raw", 1))
         total_clients = total_clients if total_clients > 0 else 1
-        hnw_aum = float(target_firm.get("hnw_aum_raw", 0)) / 1_000_000
         
+        # Pulling live HNW AUM numbers from the dictionary (and dividing by 1M to get scale)
+        hnw_aum_24 = float(target_firm.get("hnw_aum_2024_raw", 0)) / 1_000_000
+        hnw_aum_25 = float(target_firm.get("hnw_aum_2025_raw", 0)) / 1_000_000
+        hnw_aum_26 = float(target_firm.get("hnw_aum_2026_raw", 0)) / 1_000_000
+        
+        # Computed Values for Stat Cards
         aum_growth_pct = ((aum_26 - aum_24) / aum_24 * 100) if aum_24 > 0 else 0
         aum_per_advisor = aum_26 / adv_26
         avg_client_aum = aum_26 / total_clients
-        hnw_pct = (hnw_aum / aum_26 * 100) if aum_26 > 0 else 0
+        hnw_pct = (hnw_aum_26 / aum_26 * 100) if aum_26 > 0 else 0
     except Exception as e:
         print(f" [!] Math anomaly caught during compilation: {e}")
         aum_growth_pct, aum_per_advisor, avg_client_aum, hnw_pct = 0, 0, 0, 0
-        aum_24, aum_25, aum_26, adv_24, adv_25, adv_26 = 0, 0, 0, 1, 1, 1
+        aum_24, aum_25, aum_26 = 0, 0, 0
+        hnw_aum_24, hnw_aum_25, hnw_aum_26 = 0, 0, 0
 
+    # Load the template file
     with open(template_path, "r", encoding="utf-8") as f:
         html = f.read()
 
+    # Execute string replacements for clean variable mounting
     html = html.replace("{{FIRM_NAME}}", str(target_firm.get("firm_name", "Our Target")))
     html = html.replace("{{AUM_GROWTH_PCT}}", f"{aum_growth_pct:+.1f}")
     html = html.replace("{{AUM_PER_ADVISOR}}", f"{aum_per_advisor:.1f}")
@@ -75,11 +83,9 @@ def compile_landing_page(target_firm, compliment_html, opportunities_html, loom_
     html = html.replace("{{HNW_PCT}}", f"{hnw_pct:.1f}")
     html = html.replace("{{LOOM_ID}}", str(loom_id))
     
-    html = html.replace("{{COMPLIMENT_CONTENT}}", compliment_html.replace("\n", "<br>"))
-    html = html.replace("{{OPPORTUNITIES_CONTENT}}", opportunities_html.replace("\n", "<br>"))
-    
-    html = html.replace("{{CHART_DATA_AUM}}", f"{aum_24}, {aum_25}, {aum_26}")
-    html = html.replace("{{CHART_DATA_ADV}}", f"{adv_24}, {adv_25}, {adv_26}")
+    # Inject Grouped Chart JS numeric arrays
+    html = html.replace("{{CHART_DATA_AUM}}", f"{aum_24:.1f}, {aum_25:.1f}, {aum_26:.1f}")
+    html = html.replace("{{CHART_DATA_HNW_AUM}}", f"{hnw_aum_24:.1f}, {hnw_aum_25:.1f}, {hnw_aum_26:.1f}")
     
     return html
 
@@ -331,8 +337,6 @@ def run_pipeline():
     # and 'generated_opportunities_html' here!
     compiled_html = compile_landing_page(
         target_firm=target_firm, 
-        compliment_html=generated_compliment_html, 
-        opportunities_html=generated_opportunities_html, 
         loom_id=target_loom_id
     )
 
