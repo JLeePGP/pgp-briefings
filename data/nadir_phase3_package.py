@@ -225,11 +225,8 @@ def run_pipeline():
         
         <footer class="text-center pt-12 border-t border-brand-charcoal/40 max-w-2xl mx-auto">
             <h3 class="text-xl font-semibold text-brand-text mb-2">
-                Interested in exploring how to capitalize on these specific opportunities?
+                Ready to explore how to capitalize on these specific opportunities?
             </h3>
-            <p class="text-slate-400 mb-8 text-sm">
-                Let's do a brief alignment check to cross-reference these metrics with your actual growth targets.
-            </p>
             <a href="https://calendly.com/precisiongrowth/discovery" 
                target="_blank"
                class="inline-block bg-brand-copper text-brand-bg font-bold text-lg px-10 py-4 rounded-lg transition-all hover:brightness-110 shadow-lg shadow-brand-copper/10">
