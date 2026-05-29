@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telemetry Review: VANTAGE POINT WEALTH MANAGEMENT</title>
+    <title>Telemetry Review: {{FIRM_NAME}}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -21,7 +21,7 @@
 <body class="bg-[#2b2b2b] text-slate-100 min-h-screen flex flex-col justify-between selection:bg-[#bf8660] selection:text-black antialiased">
 
     <header class="max-w-5xl w-full mx-auto px-6 pt-16 pb-12 text-center lg:text-left border-b border-[#4a4a4a]/40">
-        <h1 class="text-3xl lg:text-5xl font-bold tracking-tight text-white mb-4">VANTAGE POINT WEALTH MANAGEMENT</h1>
+        <h1 class="text-3xl lg:text-5xl font-bold tracking-tight text-white mb-4">{{FIRM_NAME}}</h1>
         <p class="text-md lg:text-lg text-[#bf8660] font-medium tracking-wide uppercase">We spent 3 years studying your regulatory filings. Here's what we found.</p>
     </header>
 
@@ -41,22 +41,22 @@
         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             <div class="bg-[#2b2b2b] border border-[#4a4a4a]/50 p-6 rounded-xl shadow-lg relative group brand-transition hover:border-[#bf8660]/50">
                 <span class="text-xs text-slate-400 font-medium uppercase tracking-wider block">AUM Growth (3yr)</span>
-                <span class="text-3xl font-bold text-[#bf8660] my-2 block tracking-tight">+0.0%</span>
+                <span class="text-3xl font-bold text-[#bf8660] my-2 block tracking-tight">{{AUM_GROWTH_PCT}}%</span>
                 <p class="text-[11px] text-slate-400 font-light leading-relaxed">Total asset tracking velocity accumulated since the 2024 filing window.</p>
             </div>
             <div class="bg-[#2b2b2b] border border-[#4a4a4a]/50 p-6 rounded-xl shadow-lg relative group brand-transition hover:border-[#bf8660]/50">
                 <span class="text-xs text-slate-400 font-medium uppercase tracking-wider block">AUM per Advisor</span>
-                <span class="text-3xl font-bold text-[#bf8660] my-2 block tracking-tight">$0.0M</span>
+                <span class="text-3xl font-bold text-[#bf8660] my-2 block tracking-tight">${{AUM_PER_ADVISOR}}M</span>
                 <p class="text-[11px] text-slate-400 font-light leading-relaxed">Average portfolio concentration weight distributed across active advisor chairs.</p>
             </div>
             <div class="bg-[#2b2b2b] border border-[#4a4a4a]/50 p-6 rounded-xl shadow-lg relative group brand-transition hover:border-[#bf8660]/50">
                 <span class="text-xs text-slate-400 font-medium uppercase tracking-wider block">Avg Client AUM</span>
-                <span class="text-3xl font-bold text-[#bf8660] my-2 block tracking-tight">$0.00M</span>
+                <span class="text-3xl font-bold text-[#bf8660] my-2 block tracking-tight">${{AVG_CLIENT_AUM}}M</span>
                 <p class="text-[11px] text-slate-400 font-light leading-relaxed">Average deployment value analyzed across raw historical client accounts.</p>
             </div>
             <div class="bg-[#2b2b2b] border border-[#4a4a4a]/50 p-6 rounded-xl shadow-lg relative group brand-transition hover:border-[#bf8660]/50">
                 <span class="text-xs text-slate-400 font-medium uppercase tracking-wider block">HNW % of AUM</span>
-                <span class="text-3xl font-bold text-[#bf8660] my-2 block tracking-tight">0.0%</span>
+                <span class="text-3xl font-bold text-[#bf8660] my-2 block tracking-tight">{{HNW_PCT}}%</span>
                 <p class="text-[11px] text-slate-400 font-light leading-relaxed">Total volume share derived explicitly from High-Net-Worth relationships.</p>
             </div>
         </section>
@@ -67,13 +67,13 @@
                 <h2 class="text-xs font-semibold tracking-widest text-[#bf8660] uppercase">What you're doing right</h2>
             </div>
             <div class="text-slate-300 font-light leading-relaxed space-y-4 text-sm sm:text-base">
-                # VANTAGE POINT WEALTH MANAGEMENT — VIDEO BRIEFING DASHBOARD<br><br>---<br><br>## 1. THE COMPLIMENT<br><br>- **Clean regulatory record across all three filing years** — zero disclosures reported, which signals a deeply trust-worthy, client-first operation that speaks for itself in a crowded market.<br>- **AUM rebounded to $326M in 2026** after a dip year, while simultaneously growing HNW client count to 328 — that's real momentum with the right client segment.<br>- **Team scaled from 12 to 15 advisors** while maintaining a proprietary planning process (VP360) — a rare combination of structured growth and differentiated delivery.<br><br>---<br><br>##
+                {{COMPLIMENT_CONTENT}}
             </div>
         </section>
 
         <section class="max-w-4xl mx-auto py-4">
             <div class="aspect-video w-full rounded-2xl border border-[#4a4a4a]/60 overflow-hidden bg-black shadow-2xl relative ring-1 ring-[#4a4a4a]/40">
-                <iframe src="https://www.loom.com/embed/da698bf98d5a4484a5abb0f1811c217d?hide_owner=true&hide_share=true&hide_title=true" 
+                <iframe src="https://www.loom.com/embed/{{LOOM_ID}}?hide_owner=true&hide_share=true&hide_title=true" 
                         webkitallowfullscreen mozallowfullscreen allowfullscreen 
                         class="absolute top-0 left-0 w-full h-full border-0">
                 </iframe>
@@ -88,7 +88,7 @@
             </div>
             
             <div class="text-slate-800 font-light leading-relaxed space-y-6 text-sm sm:text-base">
-                - **HNW concentration is accelerating** — 328 HNW clients now represent ~62% of total AUM ($202M). With VP360 already positioned as a customized wealth program, there's a natural runway to formalize a dedicated HNW acquisition strategy that targets this segment exclusively and drives average AUM per client higher.<br>- **No marketing infrastructure flagged across all three years** — given the firm's clean record, proprietary process, and fiduciary positioning, a lightweight digital presence (thought leadership, advisor visibility) could convert the brand equity already built into a measurable referral and inbound pipeline without adding operational complexity.
+                {{OPPORTUNITIES_CONTENT}}
             </div>
             
             <div class="mt-10 pt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-6">
@@ -120,7 +120,7 @@
                 labels: ['2024', '2025', '2026'],
                 datasets: [{
                     label: 'Total AUM ($M)',
-                    data: [0.0, 0.0, 0.0],
+                    data: [{{CHART_DATA_AUM}}],
                     backgroundColor: 'rgba(191, 134, 96, 0.15)',
                     borderColor: '#bf8660',
                     borderWidth: 2,
@@ -129,7 +129,7 @@
                     order: 2
                 }, {
                     label: 'Advisor Count',
-                    data: [1, 1, 15],
+                    data: [{{CHART_DATA_ADV}}],
                     type: 'line',
                     borderColor: '#f8fafc',
                     borderWidth: 3,

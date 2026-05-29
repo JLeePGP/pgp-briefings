@@ -36,6 +36,53 @@ def clean_slug(name):
     cleaned = re.sub(r'[^a-zA-Z0-9]', '', name).lower()
     return cleaned
 
+def compile_landing_page(target_firm, compliment_html, opportunities_html, loom_id, template_path="landing_template.html"):
+    """Reads the external HTML template and injects firm metrics cleanly via replacement tags."""
+    if not os.path.exists(template_path):
+        print(f" [!] ERROR: Missing '{template_path}'. Cannot build landing page asset.")
+        return None
+
+    try:
+        aum_24 = float(target_firm.get("aum_24_m", 0))
+        aum_25 = float(target_firm.get("aum_25_m", 0))
+        aum_26 = float(target_firm.get("aum_26_m", 0))
+        
+        adv_24 = int(target_firm.get("advisor_count_2024", 1))
+        adv_25 = int(target_firm.get("advisor_count_2025", 1))
+        adv_26 = int(target_firm.get("advisor_count_2026", 1))
+        adv_26 = adv_26 if adv_26 > 0 else 1
+        
+        total_clients = float(target_firm.get("total_clients_raw", 1))
+        total_clients = total_clients if total_clients > 0 else 1
+        hnw_aum = float(target_firm.get("hnw_aum_raw", 0)) / 1_000_000
+        
+        aum_growth_pct = ((aum_26 - aum_24) / aum_24 * 100) if aum_24 > 0 else 0
+        aum_per_advisor = aum_26 / adv_26
+        avg_client_aum = aum_26 / total_clients
+        hnw_pct = (hnw_aum / aum_26 * 100) if aum_26 > 0 else 0
+    except Exception as e:
+        print(f" [!] Math anomaly caught during compilation: {e}")
+        aum_growth_pct, aum_per_advisor, avg_client_aum, hnw_pct = 0, 0, 0, 0
+        aum_24, aum_25, aum_26, adv_24, adv_25, adv_26 = 0, 0, 0, 1, 1, 1
+
+    with open(template_path, "r", encoding="utf-8") as f:
+        html = f.read()
+
+    html = html.replace("{{FIRM_NAME}}", str(target_firm.get("firm_name", "Our Target")))
+    html = html.replace("{{AUM_GROWTH_PCT}}", f"{aum_growth_pct:+.1f}")
+    html = html.replace("{{AUM_PER_ADVISOR}}", f"{aum_per_advisor:.1f}")
+    html = html.replace("{{AVG_CLIENT_AUM}}", f"{avg_client_aum:.2f}")
+    html = html.replace("{{HNW_PCT}}", f"{hnw_pct:.1f}")
+    html = html.replace("{{LOOM_ID}}", str(loom_id))
+    
+    html = html.replace("{{COMPLIMENT_CONTENT}}", compliment_html.replace("\n", "<br>"))
+    html = html.replace("{{OPPORTUNITIES_CONTENT}}", opportunities_html.replace("\n", "<br>"))
+    
+    html = html.replace("{{CHART_DATA_AUM}}", f"{aum_24}, {aum_25}, {aum_26}")
+    html = html.replace("{{CHART_DATA_ADV}}", f"{adv_24}, {adv_25}, {adv_26}")
+    
+    return html
+
 def run_pipeline():
     print("=" * 80)
     print(" PROJECT NADIR — PHASE 3: DEDICATED TELEMETRY DEPLOYER")
@@ -164,44 +211,42 @@ def run_pipeline():
         print("     Aborting deployment pipeline instantly to safeguard campaign integrity.")
         print("=" * 80 + "\n")
         return
-# --- STEP 3: CONSTRUCT THE INTERNAL CLAUDE PROMPT FILE ---
+
+# --- STEP 3: DYNAMIC DATA ANALYSIS & CLAUDE API INFERENCE ---
     print("  Compiling internal briefing dossiers...")
     with open(INPUT_VAULT, "r") as f:
         vault = json.load(f)
     crd_str = str(target_firm["crd_number"])
     adv_history = vault.get(crd_str, {})
 
-    with open(output_prompt_file, "w", encoding="utf-8") as f:
-            f.write("FAST-SCAN VIDEO ANALYSIS BRIEFING\n")
-            f.write("==================================\n\n")
-            f.write("ACT AS A SUPPORTIVE GROWTH PARTNER AND OUTBOUND ADVISOR.\n")
-            f.write("Analyze the following internal data and web footprint:\n\n")
-            f.write(f"FIRM DETAILS:\nName: {firm_name_raw}\nCRD: {crd_str}\nURL: {raw_url}\n\n")
-            f.write("1. DATA MATRIX:\n")
-            f.write(json.dumps(adv_history, indent=2))
-            f.write(f"\n\n2. WEBSITE FOOTPRINT:\n{web_markdown[:10000]}\n\n")
-            f.write("─"*50 + "\n")
-            f.write("YOUR ASSIGNMENT:\n")
-            f.write("Provide a ultra-brief, bulleted talking-point dashboard for a short video. ")
-            f.write("Keep it entirely constructive, positive, and focused on growth potential. ")
-            f.write("Strictly format your response into only these two sections, using max 3 bullet points per section:\n\n")
-            f.write("1. THE COMPLIMENT (What they are doing right):\n")
-            f.write("   Highlight a massive win in their operational stability, scale, or clean regulatory track record. No fluff.\n\n")
-            f.write("2. GROW LEVERAGE OPPORTUNITIES (What to mention):\n")
-            f.write("   Identify 1 to 2 clean data-driven opportunities where their existing strengths (like proprietary tools, ")
-            f.write("   AUM velocity, or specialized expertise) could be leveraged to capture higher-value client segments. ")
-            f.write("   Keep these brief, direct, and conversational—avoid sounding critical or auditing their firm.\n\n")
-            f.write("Do not include hooks, intros, outros, or conversational transition commentary. Just the bullets.")
+    # Construct the prompt payload purely in-memory as a string variable
+    prompt_payload = (
+        "FAST-SCAN VIDEO ANALYSIS BRIEFING\n"
+        "==================================\n\n"
+        "ACT AS A SUPPORTIVE GROWTH PARTNER AND OUTBOUND ADVISOR.\n"
+        "Analyze the following internal data and web footprint:\n\n"
+        "FIRM DETAILS:\n"
+        f"Name: {firm_name_raw}\nCRD: {crd_str}\nURL: {raw_url}\n\n"
+        "1. DATA MATRIX:\n"
+        f"{json.dumps(adv_history, indent=2)}\n\n"
+        f"2. WEBSITE FOOTPRINT:\n{web_markdown[:10000]}\n\n"
+        "──────────────────────────────────────────────────\n"
+        "YOUR ASSIGNMENT:\n"
+        "Provide a ultra-brief, bulleted talking-point dashboard for a short video. "
+        "Keep it entirely constructive, positive, and focused on growth potential. "
+        "Strictly format your response into only these two sections, using max 3 bullet points per section:\n\n"
+        "1. THE COMPLIMENT (What they are doing right):\n"
+        "   Highlight a massive win in their operational stability, scale, or clean regulatory track record. No fluff.\n\n"
+        "2. GROW LEVERAGE OPPORTUNITIES (What to mention):\n"
+        "   Identify 1 to 2 clean data-driven opportunities where their existing strengths (like proprietary tools, "
+        "   AUM velocity, or specialized expertise) could be leveraged to capture higher-value client segments. "
+        "   Keep these brief, direct, and conversational—avoid sounding critical or auditing their firm.\n\n"
+        "Do not include hooks, intros, outros, or conversational transition commentary. Just the bullets."
+    )
+
     import anthropic
-
-    print(f"  [✔] High-conviction copywriter prompt generated successfully: '{output_prompt_file}'")
-
-# =========================================================================
-    # NEW STEP: AUTOMATED CLAUDE API INFERENCE
-    # =========================================================================
     print(f"\n  Connecting to Anthropic API to generate video framework...")
     
-    # Initialize the client using your secure configuration key
     api_key = config.get('CLAUDE_API_KEY', '')
     if not api_key:
         print("  [!] Error: CLAUDE_API_KEY not found in configuration. Aborting API step.")
@@ -209,26 +254,21 @@ def run_pipeline():
 
     client = anthropic.Anthropic(api_key=api_key)
 
-    # Read the prompt we just compiled to send to Claude
-    with open(output_prompt_file, "r", encoding="utf-8") as f:
-        prompt_payload = f.read()
-
-    print(f"  [➔] Analyzing footprints and compiling script (using claude-3-5-sonnet)...")
+    print(f"  [➔] Analyzing footprints and compiling script (using claude-sonnet-4-6)...")
     print(f"==================================================")
     print(f"            GENERATED VIDEO FRAMEWORK             ")
     print(f"==================================================")
 
-    # Execute a streaming block so you can see the response typed out live
+    generated_script = ""
     try:
         with client.messages.stream(
-            model="claude-sonnet-4-6",
+            model="claude-sonnet-4-6", # Standardized to current engine naming
             max_tokens=2000,
             temperature=0.3,
             messages=[
                 {"role": "user", "content": prompt_payload}
             ]
         ) as stream:
-            generated_script = ""
             for text in stream.text_stream:
                 print(text, end="", flush=True)
                 generated_script += text
@@ -236,14 +276,27 @@ def run_pipeline():
     
     except Exception as e:
         print(f"\n  [!] API Request failed: {e}")
-        print("  Falling back to manual mode. Please check your text prompt file.")
-        print("==================================================")
+        print("  Aborting generation process.")
+        return
+
+    # =========================================================================
+    # NEW STEP: SPLIT LIVE VARIABLE TEXT TO FEED THE HTML TEMPLATE
+    # =========================================================================
+    try:
+        # Dynamically split the live streamed string using your prompt headers
+        parts = re.split(r'(?i)2\.\s*GROW\s*LEVERAGE\s*OPPORTUNITIES.*', generated_script)
+        generated_compliment_html = parts[0].replace("1. THE COMPLIMENT (What they are doing right):", "").strip()
+        generated_opportunities_html = parts[1].strip()
+    except Exception:
+        # Emergency safety fallback if response doesn't cleanly match the headers
+        generated_compliment_html = generated_script
+        generated_opportunities_html = "Review our video walk-through matrix below to cross-reference localized scaling opportunities."
 
     # =========================================================================
     # INTERACTION STEP: TERMINAL PAUSE & LOOM URL CAPTURE
     # =========================================================================
-    print(f"FIRM MODEL: {firm_name_raw} operates with a {target_firm['advisor_count_2026']}-advisor bench.")
-    print(f"3-YEAR TRAIL: ${float(target_firm['aum_2024_m']):,.1f}M (2024) ➔ ${float(target_firm['aum_2025_m']):,.1f}M (2025) ➔ ${float(target_firm['aum_2026_m']):,.1f}M (2026)")
+    print(f"FIRM MODEL: {firm_name_raw} operates with a {target_firm.get('advisor_count_2026', 'N/A')}-advisor bench.")
+    print(f"3-YEAR TRAIL: ${float(target_firm.get('aum_2024_m', 0)):,.1f}M (2024) ➔ ${float(target_firm.get('aum_2025_m', 0)):,.1f}M (2025) ➔ ${float(target_firm.get('aum_2026_m', 0)):,.1f}M (2026)")
     print(f"\n==================================================")
     print(f"               AWAITING ASSET HANDOFF             ")
     print(f"==================================================")
@@ -251,35 +304,17 @@ def run_pipeline():
     print(f"  Record your Loom video, then paste the complete share URL below.")
     print(f"──────────────────────────────────────────────────")
     
-    # Force the script to stop here and wait for your input
+    # 1. Capture user video input
     user_loom_input = input("  ➔ Paste Loom Video URL here (or hit enter to use default): ").strip()
     
-    # Extract the raw ID if a full link was given
+    # Extract the raw alphanumeric ID if a full link was provided
     if "loom.com" in user_loom_input:
         raw_part = user_loom_input.split("/")[-1]
         user_loom_id = raw_part.split("?")[0]
     else:
         user_loom_id = user_loom_input
 
-    # --- STEP 4: COMPILE DYNAMIC EXTERNAL LANDING PAGE HTML (3-YEAR TIMELINE) ---
-    print("  Compiling client-facing Tailwind framework with 3-Year Timeline...")
-    aum_24 = target_firm["aum_2024_m"]
-    aum_25 = target_firm["aum_2025_m"]
-    aum_26 = target_firm["aum_2026_m"]
-    advisors = target_firm["advisor_count_2026"]
-
- # --- UNIVERSAL BRAND CONFIGURATION SYSTEM ---
-    BRAND_BG = "#2b2b2b"         # Dark Background
-    BRAND_CARD = "#363636"       # Slightly lighter Charcoal variant for data containers/cards
-    BRAND_CHARCOAL = "#4a4a4a"   # Accent Charcoal
-    BRAND_COPPER = "#bf8660"     # Copper Highlight / Buttons
-    BRAND_TEXT = "#f8fafc"       # Off-white for clean readability
-    
-    BRAND_FONT_FAMILY = "Poppins, system-ui, sans-serif"
-    BRAND_LOGO_URL = "https://framerusercontent.com/images/S8VQesQNIT2grrkBle7vzbRnVZc.png?scale-down-to=512&width=8000&height=4500"
-
-    # --- FUTURE-PROOFED GUI LOOM INTERACTION BRIDGE ---
-    # Assign the live typed input if you provided it, otherwise check data row, then fallback to global default
+    # Assign live typed input, fallback to data row, or utilize config default
     if user_loom_id:
         target_loom_id = user_loom_id
         print(f"  [✔] Using Custom Video Asset: {target_loom_id}")
@@ -289,94 +324,24 @@ def run_pipeline():
             target_loom_id = config.get("GLOBAL_LOOM_ID", "YOUR_DEFAULT_LOOM_ID_HERE")
             print(f"  [!] No video link provided. Falling back to default baseline asset.")
 
-    # --- COMPILING BRAND ARCHITECTURE ---
-    html_content = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Growth Strategy Telemetry // {firm_name_raw}</title>
+    # 2. Fire the template engine to compile the HTML string using your external template file
+    print("  Compiling client-facing Tailwind framework with 3-Year Timeline Chart...")
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {{
-            theme: {{
-                extend: {{
-                    colors: {{
-                        brand: {{
-                            bg: '{BRAND_BG}',
-                            card: '{BRAND_CARD}',
-                            charcoal: '{BRAND_CHARCOAL}',
-                            copper: '{BRAND_COPPER}',
-                            text: '{BRAND_TEXT}'
-                        }}
-                    }},
-                    fontFamily: {{
-                        brand: ['{BRAND_FONT_FAMILY}']
-                    }}
-                }}
-            }}
-        }}
-    </script>
-</head>
-<body class="bg-brand-bg text-brand-text font-brand antialiased">
-    <div class="max-w-5xl mx-auto px-6 py-16">
-        
-        <header class="flex flex-col gap-4 border-b border-brand-charcoal/40 pb-8 mb-12">
-            <img src="{BRAND_LOGO_URL}" alt="Precision Growth Partners Logo" class="w-1/2 sm:w-2/5 md:w-1/3 max-w-[280px] h-auto object-contain self-start">
-            <div>
-                <h1 class="text-4xl font-extrabold tracking-tight mt-2 text-brand-text">Unlocking Scale for {firm_name_raw}'s {advisors}-Advisor Bench</h1>
-                <p class="text-xl text-slate-400 mt-4 font-light">Your team expanded while market velocity shifted. Let's align your asset growth directly to your actual capacity.</p>
-            </div>
-        </header>
+    # NOTE: Ensure your script's Claude response variables match 'generated_compliment_html' 
+    # and 'generated_opportunities_html' here!
+    compiled_html = compile_landing_page(
+        target_firm=target_firm, 
+        compliment_html=generated_compliment_html, 
+        opportunities_html=generated_opportunities_html, 
+        loom_id=target_loom_id
+    )
 
-        <section class="bg-brand-card border border-brand-charcoal/30 rounded-2xl p-8 mb-12 shadow-2xl">
-            <h3 class="text-2xl font-bold text-brand-copper mb-6 text-center">Operational Analysis</h3>
-            <div class="aspect-video w-full rounded-lg border border-brand-charcoal/40 overflow-hidden bg-brand-bg relative">
-                <iframe src="https://www.loom.com/embed/{target_loom_id}?hide_owner=true&hide_share=true&hide_title=true" 
-                        webkitallowfullscreen mozallowfullscreen allowfullscreen 
-                        class="absolute top-0 left-0 w-full h-full border-0">
-                </iframe>
-            </div>
-        </section>
+    # 3. Write final file payload down to disk to supply your active deployment pipelines
+    output_filename = "index.html"
+    with open(output_filename, "w", encoding="utf-8") as html_file:
+        html_file.write(compiled_html)
 
-        <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-            <div class="bg-brand-card p-6 rounded-xl border border-brand-charcoal/30">
-                <span class="text-xs text-brand-copper uppercase tracking-wider block font-semibold">Active Bench (2026)</span>
-                <span class="text-2xl font-bold mt-1 block">{advisors} Advisors</span>
-            </div>
-            <div class="bg-brand-card p-6 rounded-xl border border-brand-charcoal/30">
-                <span class="text-xs text-slate-400 uppercase tracking-wider block font-medium">2024 AUM Baseline</span>
-                <span class="text-2xl font-bold mt-1 block">${float(aum_24):,.1f}M</span>
-            </div>
-            <div class="bg-brand-card p-6 rounded-xl border border-brand-charcoal/30">
-                <span class="text-xs text-brand-copper uppercase tracking-wider block font-semibold">2025 AUM Velocity</span>
-                <span class="text-2xl font-bold mt-1 block">${float(aum_25):,.1f}M</span>
-            </div>
-            <div class="bg-brand-card p-6 rounded-xl border border-brand-charcoal/30">
-                <span class="text-xs text-slate-400 uppercase tracking-wider block font-medium">2026 Current AUM</span>
-                <span class="text-2xl font-bold mt-1 block">${float(aum_26):,.1f}M</span>
-            </div>
-        </section>
-        
-        <footer class="text-center pt-12 border-t border-brand-charcoal/40 max-w-2xl mx-auto">
-            <h3 class="text-xl font-semibold text-brand-text mb-2">
-                Ready to explore how to capitalize on these specific opportunities?
-            </h3>
-            <a href="https://calendly.com/precisiongrowthpartners/nadir-discovery-call" 
-               target="_blank"
-               class="inline-block bg-brand-copper text-brand-text font-bold text-lg px-10 py-4 rounded-lg transition-all hover:brightness-110 shadow-lg shadow-brand-copper/10">
-                Book Discovery Call
-            </a>
-        </footer>
-    </div>
-</body>
-</html>
-"""
+    print(f"\n[✔] Landing asset compiled smoothly via template injection: {output_filename}")
 
 # --- STEP 4: DIRECT MASTER ROOT STORAGE LOGIC ---
     # We use "../" to force the folder out of 'data' and straight into the repository root
@@ -388,7 +353,7 @@ def run_pipeline():
     os.makedirs(target_dir, exist_ok=True)
     
     with open(os.path.join(target_dir, "index.html"), "w", encoding="utf-8") as f:
-        f.write(html_content)
+        f.write(compiled_html)
     print(f"  [✔] Custom HTML architecture compiled safely into repository root: {url_slug}/")
 
     # Allow local file allocation states to catch up
