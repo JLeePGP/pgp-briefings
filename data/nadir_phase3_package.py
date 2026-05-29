@@ -22,7 +22,6 @@ import requests
 INPUT_CSV = "prospects_top100.csv"
 INPUT_VAULT = "nadir_market_vault.json"
 CONFIG_FILE = "pgp_config.json"
-DIST_DIR = "netlify_build"  # Clean local staging directory for Netlify assets
 
 def load_config():
     """Loads secure API parameters from the local configuration file."""
@@ -181,9 +180,9 @@ def run_pipeline():
 </body>
 </html>
 """
-    # --- STEP 4: CUMULATIVE STORAGE LOGIC ---
-    target_dir = os.path.join(DIST_DIR, url_slug)
-    os.makedirs(DIST_DIR, exist_ok=True)
+    # --- STEP 4: DIRECT ROOT STORAGE LOGIC ---
+    # We now write folders straight to the root so they sync cleanly with public Git tracking
+    target_dir = url_slug
     
     if os.path.exists(target_dir):
         import shutil
@@ -192,7 +191,7 @@ def run_pipeline():
     
     with open(os.path.join(target_dir, "index.html"), "w", encoding="utf-8") as f:
         f.write(html_content)
-    print(f"  [✔] Custom HTML architecture compiled safely inside directory tree: {target_dir}")
+    print(f"  [✔] Custom HTML architecture compiled safely into root directory: {target_dir}")
 
     # Allow local file allocation states to catch up
     time.sleep(1)
