@@ -95,8 +95,7 @@ def run_pipeline():
         print("     Aborting deployment pipeline instantly to safeguard campaign integrity.")
         print("=" * 80 + "\n")
         return
-
-    # --- STEP 3: CONSTRUCT THE INTERNAL CLAUDE PROMPT FILE ---
+# --- STEP 3: CONSTRUCT THE INTERNAL CLAUDE PROMPT FILE ---
     print("  Compiling internal briefing dossiers...")
     with open(INPUT_VAULT, "r") as f:
         vault = json.load(f)
@@ -104,11 +103,11 @@ def run_pipeline():
     adv_history = vault.get(crd_str, {})
 
     with open(output_prompt_file, "w", encoding="utf-8") as f:
-        f.write("MASTER TACTICAL ANALYSIS BRIEFING PROMPT\n")
-        f.write("========================================\n\n")
+        f.write("MASTER VIDEO SCRIPT BRIEFING ENGINE\n")
+        f.write("===================================\n\n")
         f.write(f"NOTE: SECURELY AUTHENTICATING CLAUDE PRO MODULE VIA KEY VERIFICATION: {config.get('CLAUDE_API_KEY', '')[:8]}...\n\n")
-        f.write("ACT AS AN INVESTIGATIVE CORPORATE JOURNALIST AND B2B GROWTH STRATEGIST.\n")
-        f.write("Analyze the following internal data and live web footprint for this specific RIA:\n\n")
+        f.write("ACT AS AN ELITE B2B GROWTH STRATEGIST AND DIRECT-RESPONSE COPYWRITER FOR FINANCIAL RIAs.\n")
+        f.write("Analyze the following internal ADV data and live web footprint for this specific firm:\n\n")
         f.write(f"FIRM DETAILS:\nName: {firm_name_raw}\nCRD: {crd_str}\nURL: {raw_url}\n\n")
         f.write("1. HARD INTERNAL ADV HISTORY (2024 - 2026):\n")
         f.write(json.dumps(adv_history, indent=2))
@@ -116,10 +115,45 @@ def run_pipeline():
         f.write(web_markdown[:15000])
         f.write("\n\n" + "─"*50 + "\n")
         f.write("YOUR ASSIGNMENT:\n")
-        f.write("Construct a sharp, unvarnished 'Corporate Biography' detailing the narrative inside this firm.\n")
+        f.write("Extract the key trendlines from this data and compile a tight, modular Loom Video Script Framework.\n")
+        f.write("Do not write a generic essay or historical biography. Structure the response strictly into these sections:\n\n")
+        f.write("1. THE HOOK (First 15 Seconds):\n")
+        f.write("   Draft a personalized, attention-grabbing opening referencing their 3-year timeline matrix.\n\n")
+        f.write("2. THE COMPLIMENT:\n")
+        f.write("   Provide a highly specific validation of their active advisor team expansion or recent AUM velocity.\n\n")
+        f.write("3. IDENTIFIED OPPORTUNITIES (Select 1 to 3 items):\n")
+        f.write("   Deliver high-conviction, bulleted observations pointing out clear growth gaps where their current\n")
+        f.write("   asset velocity doesn't cleanly match their total bench capacity or positioning.\n\n")
+        f.write("4. THE OUTRO:\n")
+        f.write("   A smooth, low-pressure transition inviting them to cross-reference these findings on an alignment call.\n\n")
+        f.write("Keep the tone completely objective, authoritative, and direct. Eliminate all corporate fluff.")
 
-    print(f"  [✔] Private briefing prompt generated successfully: '{output_prompt_file}'")
+    print(f"  [✔] High-conviction copywriter prompt generated successfully: '{output_prompt_file}'")
 
+    # =========================================================================
+    # INSERTED INTERACTION STEP: TERMINAL PAUSE & LOOM URL CAPTURE
+    # =========================================================================
+    print(f"\n==================================================")
+    print(f"      CLAUDE PRO PORTAL DOSSIER & GENERATED SCRIPT ")
+    print(f"==================================================")
+    print(f"FIRM MODEL: {firm_name_raw} operates with a {target_firm['advisor_count_2026']}-advisor bench.")
+    print(f"3-YEAR TRAIL: ${float(target_firm['aum_2024_m']):,.1f}M (2024) ➔ ${float(target_firm['aum_2025_m']):,.1f}M (2025) ➔ ${float(target_firm['aum_2026_m']):,.1f}M (2026)")
+    print(f"\n--- MANUAL STEP: OPEN '{output_prompt_file}' AND RUN IN CLAUDE ---")
+    print(f"Record your video review using the analysis generated.")
+    print(f"==================================================")
+    print(f"               AWAITING ASSET HANDOFF             ")
+    print(f"==================================================")
+    
+    # 1. Force the script to stop here and wait for your input
+    user_loom_input = input("  ➔ Paste Loom Video URL here (or hit enter to use default): ").strip()
+    
+    # 2. Extract the raw ID if a full link was given
+    if "loom.com" in user_loom_input:
+        raw_part = user_loom_input.split("/")[-1]
+        user_loom_id = raw_part.split("?")[0]
+    else:
+        user_loom_id = user_loom_input
+        
     # --- STEP 4: COMPILE DYNAMIC EXTERNAL LANDING PAGE HTML (3-YEAR TIMELINE) ---
     print("  Compiling client-facing Tailwind framework with 3-Year Timeline...")
     aum_24 = target_firm["aum_2024_m"]
@@ -138,14 +172,15 @@ def run_pipeline():
     BRAND_LOGO_URL = "https://framerusercontent.com/images/S8VQesQNIT2grrkBle7vzbRnVZc.png?scale-down-to=512&width=8000&height=4500"
 
     # --- FUTURE-PROOFED GUI LOOM INTERACTION BRIDGE ---
-    # This checks your data row first. When your future chat GUI overwrites a firm's 
-    # data cell with a custom video link, this variable catches it instantly.
-    target_loom_id = str(target_firm.get('loom_id', '')).strip()
-    
-    # Clean up empty or corrupted pandas null values
-    if not target_loom_id or target_loom_id.lower() == 'nan':
-        # Default fallback asset from your global configuration
-        target_loom_id = config.get("GLOBAL_LOOM_ID", "YOUR_DEFAULT_LOOM_ID_HERE")
+    # Assign the live typed input if you provided it, otherwise check data row, then fallback to global default
+    if user_loom_id:
+        target_loom_id = user_loom_id
+        print(f"  [✔] Using Custom Video Asset: {target_loom_id}")
+    else:
+        target_loom_id = str(target_firm.get('loom_id', '')).strip()
+        if not target_loom_id or target_loom_id.lower() == 'nan':
+            target_loom_id = config.get("GLOBAL_LOOM_ID", "YOUR_DEFAULT_LOOM_ID_HERE")
+            print(f"  [!] No video link provided. Falling back to default baseline asset.")
 
     # --- COMPILING BRAND ARCHITECTURE ---
     html_content = f"""<!DOCTYPE html>
