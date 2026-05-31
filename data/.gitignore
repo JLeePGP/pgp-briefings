@@ -10,6 +10,7 @@ prospects_top100.csv
 nadir_market_vault.json
 pgp_config.json
 claude_briefing_*.txt
+README.txt
 .env
 
 # Block local website build directories
