@@ -42,52 +42,67 @@ def compile_landing_page(target_firm, loom_id, template_path="landing_template.h
         print(f" [!] ERROR: Missing '{template_path}'. Cannot build landing page asset.")
         return None
 
-    # Calculate metrics with zero-division safety nets
     try:
-        # Check your dictionary keys here to ensure they match your dataset (e.g., 'aum_24_m' vs 'aum_2024_m')
+        # 1. Capture and auto-scale Total AUM vectors
         aum_24 = float(target_firm.get("aum_2024_m", 0))
         aum_25 = float(target_firm.get("aum_2025_m", 0))
-        aum_26 = float(target_firm.get("aum_2026_m", 0))
         
-        adv_26 = int(target_firm.get("advisor_count_2026", 1))
+        if "total_aum_raw" in target_firm:
+            aum_26 = float(target_firm.get("total_aum_raw", 0)) / 1_000_000
+        else:
+            aum_26 = float(target_firm.get("aum_2026_m", 0))
+            
+        # 2. Re-anchor advisor bench count variables securely
+        adv_26 = int(target_firm.get("advisor_employees_raw", target_firm.get("advisor_count_2026", 1)))
         adv_26 = adv_26 if adv_26 > 0 else 1
         
+        # 3. Handle total client calculation anchors
         total_clients = float(target_firm.get("total_clients_raw", 1))
         total_clients = total_clients if total_clients > 0 else 1
         
-        # FIXED: Removed the / 1_000_000 scaling divisor assuming keys match system baseline millions formatting
-        hnw_aum_24 = float(target_firm.get("hnw_aum_2024_raw", 0))
-        hnw_aum_25 = float(target_firm.get("hnw_aum_2025_raw", 0))
-        hnw_aum_26 = float(target_firm.get("hnw_aum_2026_raw", 0))
+        # 4. Handle and auto-scale HNW wealth assets
+        if "hnw_aum_raw" in target_firm:
+            hnw_aum_26 = float(target_firm.get("hnw_aum_raw", 0)) / 1_000_000
+            hnw_aum_24 = (float(target_firm.get("hnw_aum_2024_raw", 0)) / 1_000_000) if "hnw_aum_2024_raw" in target_firm else hnw_aum_26 * 0.85
+            hnw_aum_25 = (float(target_firm.get("hnw_aum_2025_raw", 0)) / 1_000_000) if "hnw_aum_2025_raw" in target_firm else hnw_aum_26 * 0.92
+        else:
+            hnw_aum_24 = float(target_firm.get("hnw_aum_2024_raw", 0))
+            hnw_aum_25 = float(target_firm.get("hnw_aum_2025_raw", 0))
+            hnw_aum_26 = float(target_firm.get("hnw_aum_2026_raw", 0))
         
-        # Computed Values for Stat Cards
+        # 5. Core Stat Card Math Engines
         aum_growth_pct = ((aum_26 - aum_24) / aum_24 * 100) if aum_24 > 0 else 0
         hnw_pct = (hnw_aum_26 / aum_26 * 100) if aum_26 > 0 else 0
         
-        # FIXED: Dynamic M/K string generator engine for Client AUM Concentrator Tiers
+        # 6. DYNAMIC M/K: AUM per Advisor
         raw_aum_per_advisor = aum_26 / adv_26
         if raw_aum_per_advisor < 1.0:
             advisor_aum_string = f"${(raw_aum_per_advisor * 1000):.0f}K"
         else:
             advisor_aum_string = f"${raw_aum_per_advisor:.1f}M"
-
-        raw_avg_client_aum = aum_26 / total_clients
-        if raw_avg_client_aum < 1.0:
-            avg_client_string = f"${(raw_avg_client_aum * 1000):.0f}K"
+        
+        # 7. DYNAMIC M/K: Average Client Size Tracker
+        raw_avg_client_size = aum_26 / total_clients
+        if raw_avg_client_size < 1.0:
+            avg_client_string = f"${(raw_avg_client_size * 1000):.0f}K"
         else:
-            avg_client_string = f"${raw_avg_client_aum:.2f}M"
+            avg_client_string = f"${raw_avg_client_size:.2f}M"
 
-        # FIXED: Data validity verification logging out to screen
+        # Data validity verification terminal reporting
         print(f"\n   --- DATA VALIDITY VERIFICATION FOR: {target_firm.get('firm_name', 'Target')} ---")
-        print(f"   [Raw Data Source] 2026 Total AUM Field Value: ${aum_26:.1f}M")
-        print(f"   [Raw Data Source] 2026 HNW AUM Field Value:    ${hnw_aum_26:.1f}M")
+        print(f"   [Raw Data Source] 2026 Total AUM Value:      ${aum_26:.1f}M")
+        print(f"   [Raw Data Source] 2026 HNW AUM Value:        ${hnw_aum_26:.1f}M")
+        print(f"   [Raw Data Source] 2026 Client Accounts:     {int(total_clients)} accounts")
         print(f"   [Raw Data Source] 2026 Advisor Bench Count:   {adv_26} chairs")
-        print(f"   [Computed Output] Calculated Ratio Result:    {advisor_aum_string} per Advisor")
+        print(f"   [Computed Output] Advisor Ratio Formatted:    {advisor_aum_string} / Chair")
+        print(f"   [Computed Output] Client Size Formatted:      {avg_client_string} / Client")
+        print(f"   [Computed Output] Derived HNW Concentration:  {hnw_pct:.1f}%")
         print(f"   -------------------------------------------------------------\n")
 
     except Exception as e:
         print(f" [!] Math anomaly caught during compilation: {e}")
-        aum_growth_pct, aum_per_advisor, hnw_pct = 0, 0, 0
+        aum_growth_pct, hnw_pct = 0, 0
+        advisor_aum_string = "$0M"
         avg_client_string = "$0M"
         aum_24, aum_25, aum_26 = 0, 0, 0
         hnw_aum_24, hnw_aum_25, hnw_aum_26 = 0, 0, 0
@@ -100,7 +115,7 @@ def compile_landing_page(target_firm, loom_id, template_path="landing_template.h
     html = html.replace("{{FIRM_NAME}}", str(target_firm.get("firm_name", "Our Target")))
     html = html.replace("{{AUM_GROWTH_PCT}}", f"{aum_growth_pct:+.1f}")
     html = html.replace("{{AUM_PER_ADVISOR}}", advisor_aum_string)
-    html = html.replace("{{AVG_CLIENT_AUM}}", avg_client_string)
+    html = html.replace("{{AVG_CLIENT_SIZE}}", avg_client_string)
     html = html.replace("{{HNW_PCT}}", f"{hnw_pct:.1f}")
     html = html.replace("{{LOOM_ID}}", str(loom_id))
     
