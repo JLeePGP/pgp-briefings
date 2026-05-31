@@ -228,6 +228,11 @@ def run_20_signal_scoring():
             "team_size_2024": emp_24,
             "team_size_2026": emp_26,
             "advisor_count_2026": adv_26,
+
+            "total_clients_raw": f26["total_clients_raw"],
+            "hnw_aum_raw": f26["hnw_aum_raw"],
+            "advisor_employees_raw": adv_26,
+
             "hnw_dependency_ratio_2026": round(hnw_dep_26, 2),
             "has_marketing_infrastructure_2026": f26["has_marketing_infrastructure"]
         })
@@ -267,7 +272,7 @@ def run_20_signal_scoring():
     # Restructure clean layout structure for flat CSV output
     columns_to_export = [
         "crd_number", "firm_name", "state", "website_url", "propensity_index", "composite_score",
-        "aum_2024_m", "aum_2025_m", "aum_2026_m", "aum_growth_3yr_pct", "advisor_count_2026", "has_marketing_infrastructure_2026"
+        "aum_2024_m", "aum_2025_m", "aum_2026_m", "aum_growth_3yr_pct", "advisor_count_2026", "hnw_dependency_ratio_2026", "total_clients_raw", "hnw_aum_raw", "advisor_employees_raw", "has_marketing_infrastructure_2026"
     ]
     df_top100[columns_to_export].to_csv(OUTPUT_CSV, index=False)
     
