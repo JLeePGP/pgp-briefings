@@ -3,84 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Growth Strategy Telemetry // TIDEMARK, LLC</title>
-    
+    <title>Telemetry Review: TIDEMARK, LLC</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            bg: '#2b2b2b',
-                            card: '#363636',
-                            charcoal: '#4a4a4a',
-                            copper: '#bf8660',
-                            text: '#f8fafc'
-                        }
-                    },
-                    fontFamily: {
-                        brand: ['Poppins, system-ui, sans-serif']
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-brand-bg text-brand-text font-brand antialiased">
-    <div class="max-w-5xl mx-auto px-6 py-16">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap');
         
-        <header class="flex flex-col gap-4 border-b border-brand-charcoal/40 pb-8 mb-12">
-            <img src="https://framerusercontent.com/images/S8VQesQNIT2grrkBle7vzbRnVZc.png?scale-down-to=512&width=8000&height=4500" alt="Precision Growth Partners Logo" class="w-1/2 sm:w-2/5 md:w-1/3 max-w-[280px] h-auto object-contain self-start">
-            <div>
-                <h1 class="text-4xl font-extrabold tracking-tight mt-2 text-brand-text">Unlocking Scale for TIDEMARK, LLC's 8-Advisor Bench</h1>
-                <p class="text-xl text-slate-400 mt-4 font-light">Your team expanded while market velocity shifted. Let's align your asset growth directly to your actual capacity.</p>
-            </div>
-        </header>
+        body { 
+            font-family: 'Poppins', sans-serif; 
+        }
+        
+        .brand-transition {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-[#2b2b2b] text-slate-100 min-h-screen flex flex-col justify-between selection:bg-[#bf8660] selection:text-black antialiased">
 
-        <section class="bg-brand-card border border-brand-charcoal/30 rounded-2xl p-8 mb-12 shadow-2xl">
-            <h3 class="text-2xl font-bold text-brand-copper mb-6 text-center">Operational Analysis</h3>
-            <div class="aspect-video w-full rounded-lg border border-brand-charcoal/40 overflow-hidden bg-brand-bg relative">
+    <header class="max-w-4xl w-full mx-auto px-6 pt-12 pb-4 text-left flex flex-col gap-4 border-b border-[#4a4a4a]/40">
+        <img src="https://framerusercontent.com/images/S8VQesQNIT2grrkBle7vzbRnVZc.png?scale-down-to=512&width=8000&height=4500" 
+             alt="Precision Growth Partners Logo" 
+             class="w-28 sm:w-44 h-auto object-contain block">
+        <div>
+            <h1 class="text-2xl lg:text-4xl font-bold tracking-tight text-white mb-2 sm:mb-1">TIDEMARK, LLC</h1>
+            <p class="text-xs sm:text-md text-[#bf8660] font-medium tracking-wide uppercase">We studied 3 years of your firm's data. Here's what we found.</p>
+        </div>
+    </header>
+
+    <main class="max-w-4xl w-full mx-auto px-6 py-10 flex-1 space-y-10">
+        
+        <section class="w-full">
+            <div class="aspect-video w-full rounded-2xl border border-[#4a4a4a]/60 overflow-hidden bg-black shadow-2xl relative ring-1 ring-[#4a4a4a]/40">
                 <iframe src="https://www.loom.com/embed/46ccf3ce19074c24b79c0f481a02f057?hide_owner=true&hide_share=true&hide_title=true" 
                         webkitallowfullscreen mozallowfullscreen allowfullscreen 
                         class="absolute top-0 left-0 w-full h-full border-0">
                 </iframe>
             </div>
+            <p class="text-center text-xs text-slate-400 mt-3 font-light tracking-wide italic">Click play above to view your personalized operational walk-through</p>
         </section>
 
-        <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-            <div class="bg-brand-card p-6 rounded-xl border border-brand-charcoal/30">
-                <span class="text-xs text-brand-copper uppercase tracking-wider block font-semibold">Active Bench (2026)</span>
-                <span class="text-2xl font-bold mt-1 block">8 Advisors</span>
-            </div>
-            <div class="bg-brand-card p-6 rounded-xl border border-brand-charcoal/30">
-                <span class="text-xs text-slate-400 uppercase tracking-wider block font-medium">2024 AUM Baseline</span>
-                <span class="text-2xl font-bold mt-1 block">$250.5M</span>
-            </div>
-            <div class="bg-brand-card p-6 rounded-xl border border-brand-charcoal/30">
-                <span class="text-xs text-brand-copper uppercase tracking-wider block font-semibold">2025 AUM Velocity</span>
-                <span class="text-2xl font-bold mt-1 block">$344.6M</span>
-            </div>
-            <div class="bg-brand-card p-6 rounded-xl border border-brand-charcoal/30">
-                <span class="text-xs text-slate-400 uppercase tracking-wider block font-medium">2026 Current AUM</span>
-                <span class="text-2xl font-bold mt-1 block">$462.5M</span>
-            </div>
-        </section>
-        
-        <footer class="text-center pt-12 border-t border-brand-charcoal/40 max-w-2xl mx-auto">
-            <h3 class="text-xl font-semibold text-brand-text mb-2">
-                Ready to explore how to capitalize on these specific opportunities?
-            </h3>
+        <div class="text-center pt-8 border-t border-[#4a4a4a]/20 max-w-2xl mx-auto space-y-4">
             <a href="https://calendly.com/precisiongrowthpartners/nadir-discovery-call" 
                target="_blank"
-               class="inline-block bg-brand-copper text-brand-text font-bold text-lg px-10 py-4 rounded-lg transition-all hover:brightness-110 shadow-lg shadow-brand-copper/10">
-                Book Discovery Call
+               class="inline-block bg-[#bf8660] text-white font-bold text-md px-10 py-4 rounded-xl transition-all hover:bg-black shadow-lg shadow-brand-copper/10">
+                Book a 15-min Discovery Call
             </a>
-        </footer>
-    </div>
+        </div>
+
+        <hr class="border-[#4a4a4a]/30 my-2">
+
+        <section class="bg-[#2b2b2b] border border-[#4a4a4a]/60 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1 h-full bg-[#bf8660]"></div>
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xs font-semibold tracking-widest text-white uppercase">3-Year Growth Trail</h2>
+                <span class="text-[10px] text-slate-500 font-mono">Source: SEC Form ADV Part 1A</span>
+            </div>
+            <div class="h-64 relative w-full">
+                <canvas id="growthChart"></canvas>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-[#2b2b2b] border border-[#4a4a4a]/50 p-5 rounded-xl shadow-lg brand-transition hover:border-[#bf8660]/50">
+                <span class="text-[11px] text-white font-medium uppercase tracking-wider block">AUM Growth (3yr)</span>
+                <span class="text-2xl font-bold text-[#bf8660] my-1 block tracking-tight">+84.6%</span>
+            </div>
+            <div class="bg-[#2b2b2b] border border-[#4a4a4a]/50 p-5 rounded-xl shadow-lg brand-transition hover:border-[#bf8660]/50">
+                <span class="text-[11px] text-white font-medium uppercase tracking-wider block">AVG AUM per Advisor</span>
+                <span class="text-2xl font-bold text-[#bf8660] my-1 block tracking-tight">$57.8M</span>
+            </div>
+            <div class="bg-[#2b2b2b] border border-[#4a4a4a]/50 p-5 rounded-xl shadow-lg brand-transition hover:border-[#bf8660]/50">
+                <span class="text-[11px] text-white font-medium uppercase tracking-wider block">Avg Client Size</span>
+                <span class="text-2xl font-bold text-[#bf8660] my-1 block tracking-tight">$462.50M</span>
+            </div>
+            <div class="bg-[#2b2b2b] border border-[#4a4a4a]/50 p-5 rounded-xl shadow-lg brand-transition hover:border-[#bf8660]/50">
+                <span class="text-[11px] text-white font-medium uppercase tracking-wider block">HNW % of AUM</span>
+                <span class="text-2xl font-bold text-[#bf8660] my-1 block tracking-tight">0.0%</span>
+            </div>
+        </section>
+
+        <div class="text-center pt-8 border-t border-[#4a4a4a]/20 max-w-2xl mx-auto space-y-4">
+            <a href="https://calendly.com/precisiongrowthpartners/nadir-discovery-call" 
+               target="_blank"
+               class="inline-block bg-[#bf8660] text-white font-bold text-md px-10 py-4 rounded-xl transition-all hover:bg-black shadow-lg shadow-brand-copper/10">
+                Book a 15-min Discovery Call
+            </a>
+        </div>
+
+    </main>
+
+    <footer class="w-full border-t border-[#4a4a4a]/30 bg-[#2b2b2b] py-8 text-center px-6 space-y-2">
+        <p class="text-xs text-slate-400 font-light tracking-wide">Secure PGP Protected Telemetry Array Engine</p>
+        <p class="text-[10px] text-slate-500 max-w-2xl mx-auto leading-normal font-light">
+            Analysis built natively using verified, publicly accessible SEC Form ADV Part 1A & 2A filings historical dataset matrices (2024–2026). This interface contains proprietary metrics compiled exclusively for investigative outreach context and does not constitute formal legal, compliance, or regulatory investment advice.
+        </p>
+    </footer>
+
+<script>
+        const ctx = document.getElementById('growthChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['2024', '2025', '2026'],
+                datasets: [{
+                    label: 'Total AUM ($M)',
+                    data: [250.5, 344.6, 462.5],
+                    backgroundColor: '#bf8660', // Brand Primary Copper
+                    borderColor: '#bf8660',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    barPercentage: 0.8,
+                    categoryPercentage: 0.6
+                }, {
+                    label: 'HNW AUM ($M)',
+                    data: [0.0, 0.0, 0.0],
+                    backgroundColor: 'rgba(255, 255, 255, 0.25)', // Brand Bright Accent (Contrasting Off-White)
+                    borderColor: 'rgba(255, 255, 255, 0.4)',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    barPercentage: 0.8,
+                    categoryPercentage: 0.6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { 
+                        position: 'top',
+                        labels: { 
+                            color: '#e2e8f0', 
+                            boxWidth: 12,
+                            padding: 20,
+                            font: { size: 11, family: 'Poppins', weight: '500' } 
+                        } 
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: '#2b2b2b',
+                        titleColor: '#fff',
+                        bodyColor: '#cbd5e1',
+                        borderColor: '#4a4a4a',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': $' + context.raw.toFixed(1) + 'M';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { 
+                        grid: { display: false }, 
+                        ticks: { color: '#cbd5e1', font: { size: 11, family: 'Poppins' } } 
+                    },
+                    y: {
+                        type: 'linear',
+                        grid: { color: 'rgba(74, 74, 74, 0.25)' },
+                        ticks: { 
+                            color: '#cbd5e1', 
+                            font: { size: 10 },
+                            callback: value => '$' + value + 'M' 
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
