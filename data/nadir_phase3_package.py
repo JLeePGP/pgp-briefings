@@ -196,10 +196,20 @@ def run_pipeline():
                         "firm_name": latest_data.get("firm_name", "Unknown Firm"),
                         "crd_number": target_crd,
                         "website_url": latest_data.get("website_url", ""),
-                        "advisor_count_2026": latest_data.get("advisor_employees_raw", "0"),
+                        "advisor_count_2026": latest_data.get("advisor_employees_raw", 0),
                         "aum_2024_m": float(adv_history.get("2024", {}).get("total_aum_raw", 0)) / 1_000_000,
                         "aum_2025_m": float(adv_history.get("2025", {}).get("total_aum_raw", 0)) / 1_000_000,
-                        "aum_2026_m": float(adv_history.get("2026", {}).get("total_aum_raw", 0)) / 1_000_000
+                        "aum_2026_m": float(adv_history.get("2026", {}).get("total_aum_raw", 0)) / 1_000_000,
+                        
+                        # --- ADDED TO FIX WILDCARD ZERO-OUTS ---
+                        "total_clients_raw": int(latest_data.get("total_clients_raw", 1)),
+                        "hnw_aum_raw": float(latest_data.get("hnw_aum_raw", 0)),
+                        "advisor_employees_raw": int(latest_data.get("advisor_employees_raw", 1)),
+                        
+                        # Pass historical baseline data raw vectors for the chart engine
+                        "hnw_aum_2024_raw": float(adv_history.get("2024", {}).get("hnw_aum_raw", 0)),
+                        "hnw_aum_2025_raw": float(adv_history.get("2025", {}).get("hnw_aum_raw", 0)),
+                        "hnw_aum_2026_raw": float(adv_history.get("2026", {}).get("hnw_aum_raw", 0))
                     }
                     is_manual_override = True
                     break
