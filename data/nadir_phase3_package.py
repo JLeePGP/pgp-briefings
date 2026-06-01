@@ -432,7 +432,7 @@ def run_pipeline():
                 crd_number, firm_name, website_url, url_slug, propensity_index,
                 aum_2024_m, aum_2025_m, aum_2026_m, advisor_count_2026, total_clients_raw, hnw_aum_raw
             )
-            VALUES (:crd, :name, :url, :slug, :idx, :aum24, :aum25, :aum26, :adv26, :clients, :hnw_raw)
+            VALUES (:crd, :name, :url, :slug, :idx, :aum_24, :aum_25, :aum_26, :adv_26, :clients, :hnw_raw)
             ON CONFLICT (crd_number) 
             DO UPDATE SET 
                 firm_name = EXCLUDED.firm_name,
@@ -455,10 +455,10 @@ def run_pipeline():
                 "url": str(raw_url),
                 "slug": str(url_slug),
                 "idx": float(target_firm.get("propensity_index", 0.0)),
-                "aum24": float(aum_24),
-                "aum25": float(aum_25),
-                "aum26": float(aum_26),
-                "adv26": int(adv_26),
+                "aum_24": float(aum_24),
+                "aum_25": float(aum_25),
+                "aum_26": float(aum_26),
+                "adv_26": int(adv_26),
                 "clients": int(total_clients),
                 "hnw_raw": float(target_firm.get("hnw_aum_raw", hnw_aum_26 * 1_000_000))
             })
