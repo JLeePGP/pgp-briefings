@@ -417,8 +417,7 @@ def run_pipeline():
         from datetime import datetime
 
         print(f"\n  [🛢️] Initializing SQL connection to PostgreSQL CRM vault...")
-        engine = create_engine('postgresql://pgp_admin:secure_pass@localhost:5432/pgp_crm')
-
+        engine = create_engine('postgresql://pgp_admin:secure_pass@localhost:5432/pgp_nadir_crm')
         firm_query = text("""
             INSERT INTO firms (
                 crd_number, firm_name, website_url, url_slug, propensity_index,
