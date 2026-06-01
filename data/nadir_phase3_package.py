@@ -128,6 +128,7 @@ def compile_landing_page(target_firm, loom_id, template_path="landing_template.h
             "aum_24": aum_24,
             "aum_25": aum_25,
             "aum_26": aum_26,
+            "hnw_aum_26": hnw_aum_26,
             "adv_26": adv_26,
             "total_clients": total_clients,
             "aum_growth_pct": aum_growth_pct,
@@ -401,6 +402,7 @@ def run_pipeline():
     aum_24 = payload["aum_24"]
     aum_25 = payload["aum_25"]
     aum_26 = payload["aum_26"]
+    hnw_aum_26 = payload["hnw_aum_26"]
     adv_26 = payload["adv_26"]
     total_clients = payload["total_clients"]
     aum_growth_pct = payload["aum_growth_pct"]
