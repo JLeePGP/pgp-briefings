@@ -9,6 +9,7 @@
 prospects_top100.csv
 nadir_market_vault.json
 pgp_config.json
+__pycache__/
 claude_briefing_*.txt
 json_data_search.py
 README.txt
@@ -17,3 +18,9 @@ README.txt
 # Block local website build directories
 netlify_build/
 nadir_vault/
+
+# Local Database Client & Analytics Cache
+.dbeaver/
+.beekeeper/
+*.db
+*.sqlite

@@ -409,6 +409,86 @@ def run_pipeline():
     # Allow local file allocation states to catch up
     time.sleep(1)
 
+    # =========================================================================
+    # ENCOMPASSING CRM DATABASE LAYER (CAPUTURES ALL CRITICAL INPUT/OUTPUT PARAMETERS)
+    # =========================================================================
+    try:
+        from sqlalchemy import create_engine, text
+        from datetime import datetime
+
+        print(f"\n  [🛢️] Initializing SQL connection to PostgreSQL CRM vault...")
+        engine = create_engine('postgresql://pgp_admin:secure_pass@localhost:5432/pgp_crm')
+
+        firm_query = text("""
+            INSERT INTO firms (
+                crd_number, firm_name, website_url, url_slug, propensity_index,
+                aum_2024_m, aum_2025_m, aum_2026_m, advisor_count_2026, total_clients_raw, hnw_aum_raw
+            )
+            VALUES (:crd, :name, :url, :slug, :idx, :aum24, :aum25, :aum26, :adv26, :clients, :hnw_raw)
+            ON CONFLICT (crd_number) 
+            DO UPDATE SET 
+                firm_name = EXCLUDED.firm_name,
+                website_url = EXCLUDED.website_url,
+                url_slug = EXCLUDED.url_slug,
+                propensity_index = EXCLUDED.propensity_index,
+                aum_2024_m = EXCLUDED.aum_2024_m,
+                aum_2025_m = EXCLUDED.aum_2025_m,
+                aum_2026_m = EXCLUDED.aum_2026_m,
+                advisor_count_2026 = EXCLUDED.advisor_count_2026,
+                total_clients_raw = EXCLUDED.total_clients_raw,
+                hnw_aum_raw = EXCLUDED.hnw_aum_raw
+            RETURNING id;
+        """)
+
+        with engine.begin() as conn:
+            result = conn.execute(firm_query, {
+                "crd": str(crd_str),
+                "name": str(firm_name_raw),
+                "url": str(raw_url),
+                "slug": str(url_slug),
+                "idx": float(target_firm.get("propensity_index", 0.0)),
+                "aum24": float(aum_24),
+                "aum25": float(aum_25),
+                "aum26": float(aum_26),
+                "adv26": int(adv_26),
+                "clients": int(total_clients),
+                "hnw_raw": float(target_firm.get("hnw_aum_raw", hnw_aum_26 * 1_000_000))
+            })
+            firm_internal_id = result.fetchone()[0]
+
+            # Collect parameters into structured JSONB fields for deep querying
+            telemetry_metrics_json = {
+                "computed_aum_growth_pct": round(aum_growth_pct, 2),
+                "derived_hnw_concentration_pct": round(hnw_pct, 2),
+                "formatted_advisor_efficiency": advisor_aum_string,
+                "formatted_avg_client_size": avg_client_string,
+                "scraped_web_signature_bytes": len(web_markdown)
+            }
+
+            insight_query = text("""
+                INSERT INTO ai_insights (
+                    firm_id, raw_claude_script, parsed_compliment, parsed_opportunities, 
+                    scraped_jina_markdown, loom_embed_token, telemetry_metrics_json, insight_timestamp
+                )
+                VALUES (:firm_id, :script, :compliment, :opportunities, :markdown, :loom, :metrics_json, :timestamp);
+            """)
+
+            conn.execute(insight_query, {
+                "firm_id": firm_internal_id,
+                "script": str(generated_script),
+                "compliment": str(generated_compliment_html),
+                "opportunities": str(generated_opportunities_html),
+                "markdown": str(web_markdown),
+                "loom": str(target_loom_id),
+                "metrics_json": json.dumps(telemetry_metrics_json),
+                "timestamp": datetime.utcnow()
+            })
+
+        print(f"  [✔] CRM LAYER SUCCESS: Complete parameters & insights tracked successfully.")
+
+    except Exception as db_err:
+        print(f"  [!] Database Persistence Layer skipped or encountered error: {db_err}")
+
  # --- STEP 5: AUTOMATED DEPLOYMENT PUSH TO GITHUB/NETLIFY ---
     print("  Syncing incremental directory tree to GitHub repository...")
     try:
