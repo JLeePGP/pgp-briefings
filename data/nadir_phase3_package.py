@@ -467,7 +467,6 @@ def run_pipeline():
                 advisor_count_2026 = EXCLUDED.advisor_count_2026,
                 total_clients_raw = EXCLUDED.total_clients_raw,
                 hnw_aum_raw = EXCLUDED.hnw_aum_raw
-            )
             RETURNING id;
         """)
 
