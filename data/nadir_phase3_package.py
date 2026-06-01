@@ -416,8 +416,17 @@ def run_pipeline():
         from sqlalchemy import create_engine, text
         from datetime import datetime
 
+        from urllib.parse import quote_plus
+        from sqlalchemy import create_engine, text
+
+        # 1. Put your exact password with the special characters here
+        raw_password = "Myd@tAYuh!$5" 
+
+        # 2. This safely translates symbols like ! or $ so the URL doesn't break
+        safe_password = quote_plus(raw_password)
+
         print(f"\n  [🛢️] Initializing SQL connection to PostgreSQL CRM vault...")
-        engine = create_engine('postgresql://pgp_admin:Myd@tAYuh!$5@localhost:5432/pgp_nadir_crm')
+        engine = create_engine(f'postgresql://pgp_admin:{safe_password}@localhost:5432/pgp_nadir_crm')
         firm_query = text("""
             INSERT INTO firms (
                 crd_number, firm_name, website_url, url_slug, propensity_index,
