@@ -508,7 +508,7 @@ def run_pipeline():
                 "compliment": str(generated_compliment_html),
                 "opportunities": str(generated_opportunities_html),
                 "markdown": str(web_markdown),
-                "loom": str(target_loom_id),
+                "loom": str(user_loom_id),
                 "metrics_json": json.dumps(telemetry_metrics_json),
                 "timestamp": datetime.utcnow()
             })
