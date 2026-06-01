@@ -276,7 +276,7 @@ def run_pipeline():
         print("=" * 80 + "\n")
         return
 
-# --- STEP 3: DYNAMIC DATA ANALYSIS & CLAUDE API INFERENCE ---
+    # --- STEP 3: DYNAMIC DATA ANALYSIS & CLAUDE API INFERENCE ---
     print("  Compiling internal briefing dossiers...")
     with open(INPUT_VAULT, "r") as f:
         vault = json.load(f)
@@ -326,7 +326,7 @@ def run_pipeline():
     generated_script = ""
     try:
         with client.messages.stream(
-            model="claude-sonnet-4-6", # Standardized to current engine naming
+            model="claude-sonnet-4-6",
             max_tokens=2000,
             temperature=0.3,
             messages=[
@@ -343,84 +343,29 @@ def run_pipeline():
         print("  Aborting generation process.")
         return
 
-    # =========================================================================
-    # NEW STEP: SPLIT LIVE VARIABLE TEXT TO FEED THE HTML TEMPLATE
-    # =========================================================================
+    # SPLIT LIVE VARIABLE TEXT TO FEED THE HTML TEMPLATE
     try:
-        # Dynamically split the live streamed string using your prompt headers
         parts = re.split(r'(?i)2\.\s*GROW\s*LEVERAGE\s*OPPORTUNITIES.*', generated_script)
         generated_compliment_html = parts[0].replace("1. THE COMPLIMENT (What they are doing right):", "").strip()
         generated_opportunities_html = parts[1].strip()
     except Exception:
-        # Emergency safety fallback if response doesn't cleanly match the headers
         generated_compliment_html = generated_script
         generated_opportunities_html = "Review our video walk-through matrix below to cross-reference localized scaling opportunities."
 
     # =========================================================================
-    # INTERACTION STEP: TERMINAL PAUSE & LOOM URL CAPTURE
+    # NEW WORKFLOW PHASE 1: INITIAL DEPLOYMENT (Pushes frame for recording)
     # =========================================================================
-    print(f"FIRM MODEL: {firm_name_raw} operates with a {target_firm.get('advisor_count_2026', 'N/A')}-advisor bench.")
-    print(f"3-YEAR TRAIL: ${float(target_firm.get('aum_2024_m', 0)):,.1f}M (2024) ➔ ${float(target_firm.get('aum_2025_m', 0)):,.1f}M (2025) ➔ ${float(target_firm.get('aum_2026_m', 0)):,.1f}M (2026)")
-    print(f"\n==================================================")
-    print(f"               AWAITING ASSET HANDOFF             ")
-    print(f"==================================================")
-    print(f"  Instructions: Review the script generated above by Claude.")
-    print(f"  Record your Loom video, then paste the complete share URL below.")
-    print(f"──────────────────────────────────────────────────")
+    print(f"\n  [🚀] PHASE 1: Building initial target dashboard (without video)...")
     
-    # 1. Capture user video input
-    user_loom_input = input("  ➔ Paste Loom Video URL here (or hit enter to use default): ").strip()
-    
-    # Extract the raw alphanumeric ID if a full link was provided
-    if "loom.com" in user_loom_input:
-        raw_part = user_loom_input.split("/")[-1]
-        user_loom_id = raw_part.split("?")[0]
-    else:
-        user_loom_id = user_loom_input
+    # Compile landing page using None so it builds a clean frame
+    payload = compile_landing_page(target_firm=target_firm, loom_id=None)
+    compiled_html = payload["html"]
 
-    # Assign live typed input, fallback to data row, or utilize config default
-    if user_loom_id:
-        target_loom_id = user_loom_id
-        print(f"  [✔] Using Custom Video Asset: {target_loom_id}")
-    else:
-        target_loom_id = str(target_firm.get('loom_id', '')).strip()
-        if not target_loom_id or target_loom_id.lower() == 'nan':
-            target_loom_id = config.get("GLOBAL_LOOM_ID", "YOUR_DEFAULT_LOOM_ID_HERE")
-            print(f"  [!] No video link provided. Falling back to default baseline asset.")
-
-    # 2. Fire the template engine to compile the HTML string using your external template file
-    print("  Compiling client-facing Tailwind framework with 3-Year Timeline Chart...")
-    
-    # --- FIXED: Capture the dictionary package instead of just a raw string ---
-    payload = compile_landing_page(
-        target_firm=target_firm, 
-        loom_id=target_loom_id
-    )
-
-    # --- UNPACK EVERYTHING FOR THE DISK AND SQL DATABASE ---
-    compiled_html = payload["html"] # This pulls the raw HTML text out for your file
-    aum_24 = payload["aum_24"]
-    aum_25 = payload["aum_25"]
-    aum_26 = payload["aum_26"]
-    hnw_aum_26 = payload["hnw_aum_26"]
-    adv_26 = payload["adv_26"]
-    total_clients = payload["total_clients"]
-    aum_growth_pct = payload["aum_growth_pct"]
-    hnw_pct = payload["hnw_pct"]
-    advisor_aum_string = payload["advisor_aum_string"]
-    avg_client_string = payload["avg_client_string"]
-
-    # 3. Write final file payload down to disk to supply your active deployment pipelines
-    output_filename = "index.html"
-    with open(output_filename, "w", encoding="utf-8") as html_file:
+    # Write initial frame files to local directories
+    with open("index.html", "w", encoding="utf-8") as html_file:
         html_file.write(compiled_html)
 
-    print(f"\n[✔] Landing asset compiled smoothly via template injection: {output_filename}")
-
-# --- STEP 4: DIRECT MASTER ROOT STORAGE LOGIC ---
-    # We use "../" to force the folder out of 'data' and straight into the repository root
     target_dir = os.path.join("..", url_slug)
-    
     if os.path.exists(target_dir):
         import shutil
         shutil.rmtree(target_dir)
@@ -428,25 +373,78 @@ def run_pipeline():
     
     with open(os.path.join(target_dir, "index.html"), "w", encoding="utf-8") as f:
         f.write(compiled_html)
-    print(f"  [✔] Custom HTML architecture compiled safely into repository root: {url_slug}/")
 
-    # Allow local file allocation states to catch up
+    # Push the initial frame to GitHub contextually right now
+    print("  [🚀] Pushing framework asset to GitHub Pages for video recording backdrop...")
+    try:
+        script_dir = os.getcwd()
+        os.chdir("..")
+        subprocess.run("git add .", shell=True, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(f'git commit --allow-empty -m "Telemetry frame: {url_slug}"', shell=True, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run("git push origin main", shell=True, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        os.chdir(script_dir)
+    except Exception as git_phase1_err:
+        print(f"  [!] Intermediate git push stalled: {git_phase1_err}. Continuing pipeline...")
+        os.chdir(script_dir)
+
+    print(f"\n==================================================")
+    print(f"               FRAMEWORK IS LIVE                  ")
+    print(f"==================================================")
+    print(f"  👉 Live URL: https://telemetry.precisiongrowthpartners.io/{url_slug}")
+    print(f"  \n  Instructions:")
+    print(f"  1. Click the link above to open their custom dashboard on your monitor.")
+    print(f"  2. Record your Loom video using Claude's talking points above.")
+    print(f"  3. Copy your completed Loom share URL.")
+    print(f"──────────────────────────────────────────────────")
+
+    # =========================================================================
+    # NEW WORKFLOW PHASE 2: PAUSE, CAPTURE LOOM VIDEO, OVERWRITE WITH EMBED
+    # =========================================================================
+    user_loom_input = input("  ➔ Paste Loom Video URL here when finished recording: ").strip()
+    
+    # Extract ID token from user input paste
+    if "loom.com" in user_loom_input:
+        user_loom_id = user_loom_input.split("/")[-1].split("?")[0]
+    else:
+        user_loom_id = user_loom_input if user_loom_input else config.get("GLOBAL_LOOM_ID", "PRE_RECORDED_FALLBACK")
+
+    print(f"\n  [🛢️] PHASE 2: Injecting active video '{user_loom_id}' and prepping final deploy...")
+
+    # Re-compile the page with the official Loom Token ID active
+    final_payload = compile_landing_page(target_firm=target_firm, loom_id=user_loom_id)
+    final_html = final_payload["html"]
+
+    # Overwrite the placeholder index.html files with the permanent video version
+    with open("index.html", "w", encoding="utf-8") as html_file:
+        html_file.write(final_html)
+    with open(os.path.join(target_dir, "index.html"), "w", encoding="utf-8") as f:
+        f.write(final_html)
+
+    # Unpack the metrics variables so the CRM block can read them seamlessly
+    aum_24 = final_payload["aum_24"]
+    aum_25 = final_payload["aum_25"]
+    aum_26 = final_payload["aum_26"]
+    hnw_aum_26 = final_payload["hnw_aum_26"]
+    adv_26 = final_payload["adv_26"]
+    total_clients = final_payload["total_clients"]
+    aum_growth_pct = final_payload["aum_growth_pct"]
+    hnw_pct = final_payload["hnw_pct"]
+    advisor_aum_string = final_payload["advisor_aum_string"]
+    avg_client_string = final_payload["avg_client_string"]
+
+    print(f"\n[✔] Landing asset compiled smoothly via template injection: index.html")
+    print(f"  [✔] Custom HTML architecture compiled safely into repository root: {url_slug}/")
     time.sleep(1)
 
     # =========================================================================
-    # ENCOMPASSING CRM DATABASE LAYER (CAPUTURES ALL CRITICAL INPUT/OUTPUT PARAMETERS)
+    # ENCOMPASSING CRM DATABASE LAYER
     # =========================================================================
     try:
         from sqlalchemy import create_engine, text
         from datetime import datetime
-
         from urllib.parse import quote_plus
-        from sqlalchemy import create_engine, text
 
-        # 1. Put your exact password with the special characters here
         raw_password = "Myd@tAYuh!$5" 
-
-        # 2. This safely translates symbols like ! or $ so the URL doesn't break
         safe_password = quote_plus(raw_password)
 
         print(f"\n  [🛢️] Initializing SQL connection to PostgreSQL CRM vault...")
@@ -469,6 +467,7 @@ def run_pipeline():
                 advisor_count_2026 = EXCLUDED.advisor_count_2026,
                 total_clients_raw = EXCLUDED.total_clients_raw,
                 hnw_aum_raw = EXCLUDED.hnw_aum_raw
+            )
             RETURNING id;
         """)
 
@@ -488,7 +487,6 @@ def run_pipeline():
             })
             firm_internal_id = result.fetchone()[0]
 
-            # Collect parameters into structured JSONB fields for deep querying
             telemetry_metrics_json = {
                 "computed_aum_growth_pct": round(aum_growth_pct, 2),
                 "derived_hnw_concentration_pct": round(hnw_pct, 2),
@@ -521,7 +519,7 @@ def run_pipeline():
     except Exception as db_err:
         print(f"  [!] Database Persistence Layer skipped or encountered error: {db_err}")
 
- # --- STEP 5: AUTOMATED DEPLOYMENT PUSH TO GITHUB/NETLIFY ---
+# --- STEP 5: AUTOMATED DEPLOYMENT PUSH TO GITHUB/NETLIFY ---
     print("  Syncing incremental directory tree to GitHub repository...")
     try:
         # Cache our current position (inside 'data')
@@ -546,7 +544,6 @@ def run_pipeline():
         
     except subprocess.CalledProcessError as e:
         print(f"  [!] Git command failed to execute natively: {str(e)}")
-        # Safeguard: ensure we return to our original directory if it fails
         os.chdir(script_dir)
     except Exception as e:
         print(f"  [!] Git deployment pipeline encountered an exception: {str(e)}")

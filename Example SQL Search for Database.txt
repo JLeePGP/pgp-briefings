@@ -1,0 +1,6 @@
+Example SQL Search for Database
+
+SELECT firm_name, aum26, clients, (aum26 / clients) AS aum_per_client
+FROM firms 
+WHERE aum_growth_pct > 15 AND hnw_pct > 50
+ORDER BY aum26 DESC;
