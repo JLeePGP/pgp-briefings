@@ -123,8 +123,19 @@ def compile_landing_page(target_firm, loom_id, template_path="landing_template.h
     html = html.replace("{{CHART_DATA_AUM}}", f"{aum_24:.1f}, {aum_25:.1f}, {aum_26:.1f}")
     html = html.replace("{{CHART_DATA_HNW_AUM}}", f"{hnw_aum_24:.1f}, {hnw_aum_25:.1f}, {hnw_aum_26:.1f}")
     
-    return html
-
+    return {
+            "html": html,
+            "aum_24": aum_24,
+            "aum_25": aum_25,
+            "aum_26": aum_26,
+            "adv_26": adv_26,
+            "total_clients": total_clients,
+            "aum_growth_pct": aum_growth_pct,
+            "hnw_pct": hnw_pct,
+            "advisor_aum_string": advisor_aum_string,
+            "avg_client_string": avg_client_string
+        }
+        
 def run_pipeline():
     print("=" * 80)
     print(" PROJECT NADIR — PHASE 3: DEDICATED TELEMETRY DEPLOYER")
@@ -379,12 +390,23 @@ def run_pipeline():
     # 2. Fire the template engine to compile the HTML string using your external template file
     print("  Compiling client-facing Tailwind framework with 3-Year Timeline Chart...")
     
-    # NOTE: Ensure your script's Claude response variables match 'generated_compliment_html' 
-    # and 'generated_opportunities_html' here!
-    compiled_html = compile_landing_page(
+    # --- FIXED: Capture the dictionary package instead of just a raw string ---
+    payload = compile_landing_page(
         target_firm=target_firm, 
         loom_id=target_loom_id
     )
+
+    # --- UNPACK EVERYTHING FOR THE DISK AND SQL DATABASE ---
+    compiled_html = payload["html"] # This pulls the raw HTML text out for your file
+    aum_24 = payload["aum_24"]
+    aum_25 = payload["aum_25"]
+    aum_26 = payload["aum_26"]
+    adv_26 = payload["adv_26"]
+    total_clients = payload["total_clients"]
+    aum_growth_pct = payload["aum_growth_pct"]
+    hnw_pct = payload["hnw_pct"]
+    advisor_aum_string = payload["advisor_aum_string"]
+    avg_client_string = payload["avg_client_string"]
 
     # 3. Write final file payload down to disk to supply your active deployment pipelines
     output_filename = "index.html"
