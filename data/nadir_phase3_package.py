@@ -452,9 +452,11 @@ def run_pipeline():
         firm_query = text("""
             INSERT INTO firms (
                 crd_number, firm_name, website_url, url_slug, propensity_index,
-                aum_2024_m, aum_2025_m, aum_2026_m, advisor_count_2026, total_clients_raw, hnw_aum_raw
+                aum_2024_m, aum_2025_m, aum_2026_m, advisor_count_2026, total_clients_raw, hnw_aum_raw,
+                aum_growth_pct, hnw_pct, advisor_aum_str, avg_client_str
             )
-            VALUES (:crd, :name, :url, :slug, :idx, :aum_24, :aum_25, :aum_26, :adv_26, :clients, :hnw_raw)
+            VALUES (:crd, :name, :url, :slug, :idx, :aum_24, :aum_25, :aum_26, :adv_26, :clients, :hnw_raw,
+                    :growth, :hnw_p, :adv_str, :cl_str)
             ON CONFLICT (crd_number) 
             DO UPDATE SET 
                 firm_name = EXCLUDED.firm_name,
@@ -466,7 +468,11 @@ def run_pipeline():
                 aum_2026_m = EXCLUDED.aum_2026_m,
                 advisor_count_2026 = EXCLUDED.advisor_count_2026,
                 total_clients_raw = EXCLUDED.total_clients_raw,
-                hnw_aum_raw = EXCLUDED.hnw_aum_raw
+                hnw_aum_raw = EXCLUDED.hnw_aum_raw,
+                aum_growth_pct = EXCLUDED.aum_growth_pct,
+                hnw_pct = EXCLUDED.hnw_pct,
+                advisor_aum_str = EXCLUDED.advisor_aum_str,
+                avg_client_str = EXCLUDED.avg_client_str
             RETURNING id;
         """)
 
@@ -482,7 +488,12 @@ def run_pipeline():
                 "aum_26": float(aum_26),
                 "adv_26": int(adv_26),
                 "clients": int(total_clients),
-                "hnw_raw": float(target_firm.get("hnw_aum_raw", hnw_aum_26 * 1_000_000))
+                "hnw_raw": float(target_firm.get("hnw_aum_raw", hnw_aum_26 * 1_000_000)),
+                # ADD THESE EXTRACTED LIVE PYTHON METRICS:
+                "growth": float(aum_growth_pct),
+                "hnw_p": float(hnw_pct),
+                "adv_str": str(advisor_aum_string),
+                "cl_str": str(avg_client_string)
             })
             firm_internal_id = result.fetchone()[0]
 
