@@ -396,19 +396,31 @@ def run_pipeline():
     print(f"  2. Record your YouTube video using Claude's talking points above.")
     print(f"  3. Copy your completed YouTube share URL.")
     print(f"──────────────────────────────────────────────────")
-
-    # =========================================================================
-    # NEW WORKFLOW PHASE 2: PAUSE, CAPTURE YouTube VIDEO, OVERWRITE WITH EMBED
-    # =========================================================================
-    user_youtube_input = input("  ➔ Paste YouTube Video URL here when finished recording: ").strip()
     
-    # Extract ID token from user input paste
-    if "youtube.com" in user_youtube_input:
-        user_youtube_id = user_youtube_input.split("/")[-1].split("?")[0]
+    # =========================================================================
+    # WORKFLOW PHASE 2: PAUSE, CAPTURE YOUTUBE VIDEO, OVERWRITE WITH EMBED
+    # =========================================================================
+    
+    user_youtube_input = input("  ➔ Paste YouTube Link or 11-char ID here when finished: ").strip()
+    
+    # Clean up the input to extract ONLY the 11-character video ID
+    if "youtu.be/" in user_youtube_input:
+        # Slices 'https://youtu.be/HCq56yIpffQ?si=...' down to just 'HCq56yIpffQ'
+        user_youtube_id = user_youtube_input.split("youtu.be/")[-1].split("?")[0]
+    elif "youtube.com/watch" in user_youtube_input:
+        # Slices 'https://www.youtube.com/watch?v=HCq56yIpffQ' down to just the ID
+        user_youtube_id = user_youtube_input.split("v=")[-1].split("&")[0].split("?")[0]
+    elif "youtube.com/embed/" in user_youtube_input:
+        # Slices 'https://www.youtube.com/embed/HCq56yIpffQ' safely if copied from embed codes
+        user_youtube_id = user_youtube_input.split("youtube.com/embed/")[-1].split("?")[0].split('"')[0]
     else:
-        user_youtube_id = user_youtube_input if user_youtube_input else config.get("GLOBAL_YOUTUBE_ID", "PRE_RECORDED_FALLBACK")
+        # Fallback if you just paste the raw 11 characters directly
+        user_youtube_id = user_youtube_input.split("?")[0] if user_youtube_input else "dQw4w9WgXcQ"
 
-    print(f"\n  [🛢️] PHASE 2: Injecting active video '{user_youtube_id}' and prepping final deploy...")
+    # Enforce strict 11-character truncation to drop any weird artifacts or spaces
+    user_youtube_id = user_youtube_id.strip()[:11]
+
+    print(f"\n  [🛢️] PHASE 2: Successfully isolated clean ID '{user_youtube_id}'...")
 
     # Re-compile the page with the official YouTube Video ID active
     final_payload = compile_landing_page(target_firm=target_firm, youtube_id=user_youtube_id)
