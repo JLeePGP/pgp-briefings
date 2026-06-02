@@ -508,7 +508,7 @@ def run_pipeline():
             insight_query = text("""
                 INSERT INTO ai_insights (
                     firm_id, raw_claude_script, parsed_compliment, parsed_opportunities, 
-                    scraped_jina_markdown, youtube_embed_token, telemetry_metrics_json, insight_timestamp
+                    scraped_jina_markdown, youtube_embed_id, telemetry_metrics_json, insight_timestamp
                 )
                 VALUES (:firm_id, :script, :compliment, :opportunities, :markdown, :youtube, :metrics_json, :timestamp);
             """)
