@@ -36,7 +36,7 @@ def clean_slug(name):
     cleaned = re.sub(r'[^a-zA-Z0-9]', '', name).lower()
     return cleaned
 
-def compile_landing_page(target_firm, loom_id, template_path="landing_template.html"):
+def compile_landing_page(target_firm, youtube_id, template_path="landing_template.html"):
     """Reads the external HTML template and injects firm metrics cleanly via replacement tags."""
     if not os.path.exists(template_path):
         print(f" [!] ERROR: Missing '{template_path}'. Cannot build landing page asset.")
@@ -117,7 +117,7 @@ def compile_landing_page(target_firm, loom_id, template_path="landing_template.h
     html = html.replace("{{AUM_PER_ADVISOR}}", advisor_aum_string)
     html = html.replace("{{AVG_CLIENT_SIZE}}", avg_client_string)
     html = html.replace("{{HNW_PCT}}", f"{hnw_pct:.1f}")
-    html = html.replace("{{LOOM_ID}}", str(loom_id))
+    html = html.replace("{{YOUTUBE_ID}}", str(youtube_id))
     
     # Inject Grouped Chart JS numeric arrays
     html = html.replace("{{CHART_DATA_AUM}}", f"{aum_24:.1f}, {aum_25:.1f}, {aum_26:.1f}")
@@ -358,7 +358,7 @@ def run_pipeline():
     print(f"\n  [🚀] PHASE 1: Building initial target dashboard (without video)...")
     
     # Compile landing page using None so it builds a clean frame
-    payload = compile_landing_page(target_firm=target_firm, loom_id=None)
+    payload = compile_landing_page(target_firm=target_firm, youtube_id=None)
     compiled_html = payload["html"]
 
     # Write initial frame files to local directories
@@ -393,25 +393,25 @@ def run_pipeline():
     print(f"  👉 Live URL: https://telemetry.precisiongrowthpartners.io/{url_slug}")
     print(f"  \n  Instructions:")
     print(f"  1. Click the link above to open their custom dashboard on your monitor.")
-    print(f"  2. Record your Loom video using Claude's talking points above.")
-    print(f"  3. Copy your completed Loom share URL.")
+    print(f"  2. Record your YouTube video using Claude's talking points above.")
+    print(f"  3. Copy your completed YouTube share URL.")
     print(f"──────────────────────────────────────────────────")
 
     # =========================================================================
-    # NEW WORKFLOW PHASE 2: PAUSE, CAPTURE LOOM VIDEO, OVERWRITE WITH EMBED
+    # NEW WORKFLOW PHASE 2: PAUSE, CAPTURE YouTube VIDEO, OVERWRITE WITH EMBED
     # =========================================================================
-    user_loom_input = input("  ➔ Paste Loom Video URL here when finished recording: ").strip()
+    user_youtube_input = input("  ➔ Paste YouTube Video URL here when finished recording: ").strip()
     
     # Extract ID token from user input paste
-    if "loom.com" in user_loom_input:
-        user_loom_id = user_loom_input.split("/")[-1].split("?")[0]
+    if "youtube.com" in user_youtube_input:
+        user_youtube_id = user_youtube_input.split("/")[-1].split("?")[0]
     else:
-        user_loom_id = user_loom_input if user_loom_input else config.get("GLOBAL_LOOM_ID", "PRE_RECORDED_FALLBACK")
+        user_youtube_id = user_youtube_input if user_youtube_input else config.get("GLOBAL_YOUTUBE_ID", "PRE_RECORDED_FALLBACK")
 
-    print(f"\n  [🛢️] PHASE 2: Injecting active video '{user_loom_id}' and prepping final deploy...")
+    print(f"\n  [🛢️] PHASE 2: Injecting active video '{user_youtube_id}' and prepping final deploy...")
 
-    # Re-compile the page with the official Loom Token ID active
-    final_payload = compile_landing_page(target_firm=target_firm, loom_id=user_loom_id)
+    # Re-compile the page with the official YouTube Video ID active
+    final_payload = compile_landing_page(target_firm=target_firm, youtube_id=user_youtube_id)
     final_html = final_payload["html"]
 
     # Overwrite the placeholder index.html files with the permanent video version
@@ -508,9 +508,9 @@ def run_pipeline():
             insight_query = text("""
                 INSERT INTO ai_insights (
                     firm_id, raw_claude_script, parsed_compliment, parsed_opportunities, 
-                    scraped_jina_markdown, loom_embed_token, telemetry_metrics_json, insight_timestamp
+                    scraped_jina_markdown, youtube_embed_token, telemetry_metrics_json, insight_timestamp
                 )
-                VALUES (:firm_id, :script, :compliment, :opportunities, :markdown, :loom, :metrics_json, :timestamp);
+                VALUES (:firm_id, :script, :compliment, :opportunities, :markdown, :youtube, :metrics_json, :timestamp);
             """)
 
             conn.execute(insight_query, {
@@ -519,7 +519,7 @@ def run_pipeline():
                 "compliment": str(generated_compliment_html),
                 "opportunities": str(generated_opportunities_html),
                 "markdown": str(web_markdown),
-                "loom": str(user_loom_id),
+                "youtube": str(user_youtube_id),
                 "metrics_json": json.dumps(telemetry_metrics_json),
                 "timestamp": datetime.utcnow()
             })
